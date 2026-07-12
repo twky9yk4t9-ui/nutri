@@ -167,6 +167,7 @@ Snack pick: app proposes 2–3 templates for the week honouring the §4 snack ru
 - Three sections: **Fresh** (use ≤2 days: S4 + S1 proteins, all veg/fruit/dairy) · **Freeze on arrival** (S2 + S3 proteins) · **Pantry check** (rice, pasta, oil, spices, honey — checklist, not quantities).
 - **Defrost tasks** are injected into the daily plan: Monday evening → "move Tuesday's protein to fridge"; Tuesday evening → "move Wednesday-session protein to fridge".
 - Checkbox list, persists until next generation.
+- **Cost estimate (deliberately approximate):** the list shows an estimated total ("Est. ~€NN · Dublin avg · fresh & freeze only"), per-section subtotals and a muted per-item price, from the static §10 prices (Dublin average of Tesco/Lidl/Dunnes). Cost = what the till charges, not what recipes use: pack-rounded items cost whole packs (ceil-packs × price × pack size), loose items cost the rounded grams shown. Fresh + Freeze-on-arrival sections only — pantry-check lines and name-only extras are excluded. Re-computes on swap like the rest of the list.
 
 ### 6.4 Freezer buffer (untracked, instructional)
 Plan shows a standing suggestion until dismissed: "When a session is easy, cook +1 portion and freeze it, until you hold 2–3 emergency meals." No inventory logic in v1.
@@ -234,13 +235,16 @@ chicken_breast 106/22.0/0/2.0 · beef_mince_5 124/20.5/0/4.5 · salmon 201/20.4/
 
 Format: kcal/P/C/F. **Owner task (not app logic):** re-verify against local labels once on arrival in Dublin (~20 min); edit values in Settings→(v1.1) or directly in seed data. Canonical substitute: 0%-fat Greek yoghurt for Skyr (57/10.0/4.0/0.3) — one-tap substitution is a v1.1 feature; v1 just documents it here.
 
+**Price column (€/kg, liquids per litre; Dublin average of Tesco/Lidl/Dunnes, deliberately approximate — feeds the §6.3 estimate):**
+chicken_breast 8.00 · beef_mince_5 9.50 · salmon 17.00 · cod 9.00 · rice_dry 2.20 · pasta_dry 1.50 · orzo_dry 1.80 · noodles_dry 3.50 · couscous_dry 2.50 · potato 1.20 · broccoli 2.50 · courgette 2.50 · spinach 5.00 · peppers_mix 3.50 · green_beans 4.50 · passata 1.20 · chopped_tomatoes 1.20 · onion 1.20 · kidney_beans_drained 2.00 · pesto 6.00 · olive_oil 8.00 · honey 7.00 · soy_sauce 6.00 · skyr 4.60 · weetabix 5.00 · oat_milk_unsweetened 1.60 · banana 1.50 · apple 2.50 · chia 10.00 · dark_chocolate_85 12.00 · nuts_mixed 11.00 · oats 1.60 · whey_protein 25.00 · tuna_drained 8.50 · rice_cakes 6.00 · cottage_cheese 4.50 · cherry_tomatoes 4.00
+
 ---
 
 ## 11. v1.1 roadmap (architect for it, do NOT build it)
 
 1. **Calibration engine:** weekly weight averages; band −0.1 to −0.3 %BW/week; propose ±100–150 kcal ONLY when 2 consecutive weekly deltas sit outside band AND adherence ≥80%; 14-day settling period after any location change (Italy↔Dublin) excluded from analysis; every proposal requires explicit accept/reject; accepted changes adjust carb+fat grams proportionally across main meals, protein untouched.
 2. Ingredient editing UI + Skyr↔Greek-yoghurt substitution toggle.
-3. Cost tracking (per-ingredient price, per-week roll-up).
+3. Cost tracking — **partially shipped in v1 as a static estimate** (per-ingredient Dublin prices in §10, weekly grocery estimate in §6.3). Remaining for v1.1: owner-editable prices and a per-week spend roll-up/history.
 4. Protein-bar / freezer-portion inventory.
 5. Integrations (Garmin, sleep, training) — far future.
 

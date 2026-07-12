@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { SEED_INGREDIENTS, SEED_RECIPES, SNACK_A, SNACK_C, SNACK_D, SNACK_E } from './seed'
 import { ingredientMap } from './macros'
 import { generateCycle, swapSession } from './rotation'
-import { buildGroceryList, reconcileChecked, roundToPack, type GroceryItem } from './grocery'
+import { buildGroceryList, itemCost, reconcileChecked, roundToPack, type GroceryItem } from './grocery'
 
 // §12 (b): grocery aggregation — Σ(ingredients × portions across S1–S4)
 // + 7× breakfast + 14× snacks, per-ingredient, three sections, pack rounding.
@@ -82,6 +82,58 @@ describe('buildGroceryList aggregation', () => {
     // E contributes no ingredient grams anywhere
     const allKeys = [...listE.fresh, ...listE.freeze].map((i) => i.key)
     expect(allKeys.every((k) => !k.includes('snack'))).toBe(true)
+  })
+})
+
+describe('cost estimate (§6.3 — what the till charges, Dublin averages)', () => {
+  const ing = (over: Partial<Parameters<typeof itemCost>[0]>) =>
+    ({ id: 'x', name: 'x', per100g: { kcal: 0, p: 0, c: 0, f: 0 }, category: 'veg', freezable: false, ...over }) as Parameters<typeof itemCost>[0]
+
+  it('itemCost: loose items charge the rounded grams shown', () => {
+    expect(itemCost(ing({ priceEurPerKg: 2.0 }), 1234)).toBeCloseTo(2.48, 5) // 1240 g charged
+    expect(itemCost(ing({ priceEurPerKg: 1.2 }), 360)).toBeCloseTo(0.432, 5)
+  })
+
+  it('itemCost: pack items charge whole packs', () => {
+    expect(itemCost(ing({ priceEurPerKg: 1.2, packSizeG: 400 }), 750)).toBeCloseTo(0.96, 5) // 2 packs
+    expect(itemCost(ing({ priceEurPerKg: 1.2, packSizeG: 400 }), 400)).toBeCloseTo(0.48, 5) // exactly 1
+  })
+
+  it('itemCost: unpriced ingredients cost nothing', () => {
+    expect(itemCost(ing({}), 1000)).toBe(0)
+  })
+
+  it('costs fresh items from the fixture (skyr packs, loose chicken)', () => {
+    // skyr: 2800 g → 7 × 450 g tubs × €4.60/kg = €14.49
+    expect(find(list.fresh, 'ing:skyr')!.costEur).toBeCloseTo(14.49, 2)
+    // chicken (loose): 1280 g × €8.00/kg = €10.24
+    expect(find(list.fresh, 'ing:chicken_breast')!.costEur).toBeCloseTo(10.24, 2)
+  })
+
+  it('includes the freeze section in the estimate', () => {
+    expect(find(list.freeze, 'ing:chicken_breast:freeze')!.costEur).toBeCloseTo(2.48, 2) // 310 g × €8.00
+    expect(find(list.freeze, 'ing:beef_mince_5:freeze')!.costEur).toBeCloseTo(6.08, 2) // 640 g × €9.50
+    expect(list.costEur.freeze).toBeCloseTo(8.56, 2)
+  })
+
+  it('excludes pantry lines and name-only extras', () => {
+    for (const item of list.pantry) expect(item.costEur ?? 0).toBe(0)
+    expect(find(list.fresh, 'extra:lemons')!.costEur).toBeUndefined()
+  })
+
+  it('totals are the sum of the two costed sections', () => {
+    const sum = (items: GroceryItem[]) => items.reduce((s, i) => s + (i.costEur ?? 0), 0)
+    expect(list.costEur.fresh).toBeCloseTo(sum(list.fresh), 5)
+    expect(list.costEur.total).toBeCloseTo(list.costEur.fresh + list.costEur.freeze, 5)
+    expect(list.costEur.total).toBeGreaterThan(0)
+  })
+
+  it('recomputes on swap (S2 chicken noodles → cod)', () => {
+    const swapped = swapSession(plan, SEED_RECIPES, INGS, 'S2', 'r8')
+    const newList = buildGroceryList(swapped, SEED_RECIPES, SEED_INGREDIENTS)
+    expect(find(newList.freeze, 'ing:cod:freeze')!.costEur).toBeCloseTo(3.42, 2) // 380 g × €9.00
+    expect(newList.costEur.freeze).toBeCloseTo(6.08 + 3.42, 2)
+    expect(newList.costEur.total).not.toBeCloseTo(list.costEur.total, 2)
   })
 })
 

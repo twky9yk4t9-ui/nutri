@@ -19,12 +19,16 @@ export interface GroceryItem {
   sub?: string
   grams?: number
   packs?: number
+  /** what the till charges for this line (§6.3) — Fresh/Freeze sections only */
+  costEur?: number
 }
 
 export interface GroceryList {
   fresh: GroceryItem[]
   freeze: GroceryItem[]
   pantry: GroceryItem[]
+  /** Dublin-average estimate over the costed sections (pantry & extras excluded) */
+  costEur: { fresh: number; freeze: number; total: number }
 }
 
 // Aromatics & staples used by recipes but not part of the §10 macro table
@@ -50,6 +54,22 @@ const PANTRY_EXTRAS: Record<string, string[]> = {
   r7: ['Salt & pepper'],
   r8: ['Smoked paprika'],
   [SNACK_E]: ['Protein bars — check stock'],
+}
+
+/**
+ * §6.3 cost estimate — what the till charges, not what recipes use:
+ * pack-rounded items cost whole packs; loose items cost the rounded grams
+ * shown on the list. Returns 0 for unpriced ingredients.
+ */
+export function itemCost(ing: Ingredient, grams: number): number {
+  const price = ing.priceEurPerKg
+  if (!price || grams <= 0) return 0
+  if (ing.packSizeG && ing.packSizeG > 0) {
+    const packs = Math.max(1, Math.ceil(grams / ing.packSizeG))
+    return packs * ((price * ing.packSizeG) / 1000)
+  }
+  const chargedGrams = Math.ceil(grams / 10) * 10
+  return (price * chargedGrams) / 1000
 }
 
 /** Round a needed amount up to something you can actually buy. */
@@ -120,12 +140,14 @@ export function buildGroceryList(plan: WeekPlan, recipes: Recipe[], ingredients:
       .map(([id, grams]) => {
         const ing = ingById.get(id)!
         const r = roundToPack(grams, ing.packSizeG)
-        return { key: `ing:${id}${keySuffix}`, label: ing.name, ...r }
+        return { key: `ing:${id}${keySuffix}`, label: ing.name, costEur: itemCost(ing, grams), ...r }
       })
       .sort((a, b) => a.label.localeCompare(b.label))
 
   const fresh = toItems(freshG)
   const freeze = toItems(freezeG, ':freeze')
+  const sum = (items: GroceryItem[]) => items.reduce((s, i) => s + (i.costEur ?? 0), 0)
+  const costEur = { fresh: sum(fresh), freeze: sum(freeze), total: sum(fresh) + sum(freeze) }
 
   const pantry: GroceryItem[] = [...pantryIds]
     .map((id) => ({ key: `ing:${id}`, label: ingById.get(id)!.name }))
@@ -136,10 +158,11 @@ export function buildGroceryList(plan: WeekPlan, recipes: Recipe[], ingredients:
     for (const rid of usedRecipeIds) for (const n of map[rid] ?? []) names.add(n)
     return [...names].sort()
   }
+  // name-only lines (aromatics, stock checks) deliberately carry no cost
   for (const name of extraNames(FRESH_EXTRAS)) fresh.push({ key: slug(name), label: name })
   for (const name of extraNames(PANTRY_EXTRAS)) pantry.push({ key: slug(name), label: name })
 
-  return { fresh, freeze, pantry }
+  return { fresh, freeze, pantry, costEur }
 }
 
 /** Keep checked state for items that survived a swap/regeneration (§6.2 rule 6). */

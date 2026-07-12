@@ -22,20 +22,34 @@ describe('export / import round-trip', () => {
     expect(() => parseImport(JSON.stringify({ ...buildSeedState(), version: 99 }))).toThrow(/version/)
   })
 
-  it('migrates a v1 state/backup by merging the new snack-canon seed entries', () => {
+  it('migrates a v1 state/backup end-to-end (snack canon merge, then prices)', () => {
     const NEW_RECIPES = ['snack_f', 'snack_g', 'snack_h']
     const NEW_INGREDIENTS = ['whey_protein', 'tuna_drained', 'rice_cakes', 'cottage_cheese', 'cherry_tomatoes']
     const v1 = buildSeedState()
     v1.version = 1
     v1.recipes = v1.recipes.filter((r) => !NEW_RECIPES.includes(r.id))
-    v1.ingredients = v1.ingredients.filter((i) => !NEW_INGREDIENTS.includes(i.id))
+    v1.ingredients = v1.ingredients
+      .filter((i) => !NEW_INGREDIENTS.includes(i.id))
+      .map(({ priceEurPerKg: _price, ...rest }) => rest) // v1 predates prices
     v1.weights = [{ dateISO: '2026-07-11', kg: 72.4 }]
 
     const migrated = parseImport(serializeState(v1))
-    expect(migrated.version).toBe(2)
+    expect(migrated.version).toBe(3)
     for (const id of NEW_RECIPES) expect(migrated.recipes.map((r) => r.id)).toContain(id)
     for (const id of NEW_INGREDIENTS) expect(migrated.ingredients.map((i) => i.id)).toContain(id)
     expect(migrated.weights).toEqual([{ dateISO: '2026-07-11', kg: 72.4 }]) // user data untouched
+    expect(migrated.ingredients.find((i) => i.id === 'chicken_breast')?.priceEurPerKg).toBe(8)
+  })
+
+  it('migrates a v2 state by stamping seed prices onto stored ingredients', () => {
+    const v2 = buildSeedState()
+    v2.version = 2
+    v2.ingredients = v2.ingredients.map(({ priceEurPerKg: _price, ...rest }) => rest) // v2 predates prices
+
+    const migrated = parseImport(serializeState(v2))
+    expect(migrated.version).toBe(3)
+    expect(migrated.ingredients.every((i) => typeof i.priceEurPerKg === 'number')).toBe(true)
+    expect(migrated.ingredients.find((i) => i.id === 'skyr')?.priceEurPerKg).toBe(4.6)
   })
 
   it('names backups by date', () => {

@@ -19,6 +19,8 @@ export interface Ingredient {
   category: IngredientCategory
   packSizeG?: number
   freezable: boolean
+  /** Dublin average (Tesco/Lidl/Dunnes), €/kg — liquids per litre. Deliberately approximate (§6.3). */
+  priceEurPerKg?: number
 }
 
 export type IngredientState = 'raw' | 'cooked' | 'drained' | 'as-sold' | 'peeled'

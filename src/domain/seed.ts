@@ -21,6 +21,7 @@ const ING = (
   c: number,
   f: number,
   category: Ingredient['category'],
+  priceEurPerKg: number, // Dublin avg €/kg (liquids per litre), §6.3/§10
   opts: { packSizeG?: number; freezable?: boolean } = {},
 ): Ingredient => ({
   id,
@@ -29,46 +30,47 @@ const ING = (
   category,
   packSizeG: opts.packSizeG,
   freezable: opts.freezable ?? false,
+  priceEurPerKg,
 })
 
 export const SEED_INGREDIENTS: Ingredient[] = [
-  ING('chicken_breast', 'Chicken breast', 106, 22.0, 0, 2.0, 'protein', { freezable: true }),
-  ING('beef_mince_5', 'Beef mince 5%', 124, 20.5, 0, 4.5, 'protein', { freezable: true }),
-  ING('salmon', 'Salmon fillet', 201, 20.4, 0, 13.1, 'protein', { freezable: true }),
-  ING('cod', 'Cod / white fish', 82, 18.0, 0, 0.7, 'protein', { freezable: true }),
-  ING('rice_dry', 'Basmati rice (dry)', 351, 8.0, 77.5, 0.6, 'carb'),
-  ING('pasta_dry', 'Pasta (dry)', 353, 12.5, 71.0, 1.5, 'carb'),
-  ING('orzo_dry', 'Orzo (dry)', 353, 12.5, 71.0, 1.5, 'carb'),
-  ING('noodles_dry', 'Egg noodles (dry)', 348, 12.0, 67.0, 2.0, 'carb'),
-  ING('couscous_dry', 'Couscous (dry)', 358, 12.8, 72.5, 0.6, 'carb'),
-  ING('potato', 'Potatoes', 77, 2.0, 17.0, 0.1, 'veg'),
-  ING('broccoli', 'Broccoli', 34, 2.8, 4.0, 0.4, 'veg'),
-  ING('courgette', 'Courgette', 17, 1.2, 2.2, 0.3, 'veg'),
-  ING('spinach', 'Spinach', 23, 2.9, 1.4, 0.4, 'veg'),
-  ING('peppers_mix', 'Mixed peppers / stir-fry veg', 30, 1.0, 5.0, 0.3, 'veg'),
-  ING('green_beans', 'Green beans', 31, 1.8, 4.7, 0.2, 'veg'),
-  ING('passata', 'Passata', 30, 1.3, 4.5, 0.2, 'veg', { packSizeG: 500 }),
-  ING('chopped_tomatoes', 'Chopped tomatoes (can)', 25, 1.2, 3.5, 0.2, 'veg', { packSizeG: 400 }),
-  ING('onion', 'Onion', 38, 1.0, 8.0, 0.1, 'veg'),
-  ING('kidney_beans_drained', 'Kidney beans (drained)', 90, 7.0, 12.0, 0.5, 'veg', { packSizeG: 240 }),
-  ING('pesto', 'Pesto', 450, 4.5, 6.0, 45.0, 'fat'),
-  ING('olive_oil', 'Olive oil', 900, 0, 0, 100, 'pantry'),
-  ING('honey', 'Honey', 320, 0, 80.0, 0, 'pantry'),
-  ING('soy_sauce', 'Soy sauce', 60, 6.0, 8.0, 0, 'pantry'),
-  ING('skyr', 'Skyr, plain', 63, 10.6, 4.0, 0.2, 'dairy', { packSizeG: 450 }),
-  ING('weetabix', 'Weetabix', 362, 12.0, 69.0, 2.0, 'carb'),
-  ING('oat_milk_unsweetened', 'Oat milk, unsweetened', 42, 0.8, 6.6, 1.3, 'dairy', { packSizeG: 1000 }),
-  ING('banana', 'Banana', 89, 1.1, 20.5, 0.3, 'fruit'),
-  ING('apple', 'Apple', 52, 0.3, 12.0, 0.2, 'fruit'),
-  ING('chia', 'Chia seeds', 486, 16.5, 8.0, 30.7, 'fat'),
-  ING('dark_chocolate_85', 'Dark chocolate 85%', 590, 9.5, 22.0, 46.0, 'pantry'),
-  ING('nuts_mixed', 'Mixed nuts', 620, 21.0, 9.0, 54.0, 'fat'),
-  ING('oats', 'Oats', 372, 13.5, 60.0, 7.0, 'carb'),
-  ING('whey_protein', 'Whey protein', 375, 75.0, 8.0, 6.0, 'pantry'),
-  ING('tuna_drained', 'Tinned tuna in water (drained)', 116, 26.0, 0, 1.0, 'pantry'),
-  ING('rice_cakes', 'Rice cakes', 387, 8.0, 81.0, 3.0, 'carb'),
-  ING('cottage_cheese', 'Cottage cheese', 98, 11.0, 3.5, 4.5, 'dairy', { packSizeG: 300 }),
-  ING('cherry_tomatoes', 'Cherry tomatoes', 18, 0.9, 2.7, 0.2, 'veg'),
+  ING('chicken_breast', 'Chicken breast', 106, 22.0, 0, 2.0, 'protein', 8.0, { freezable: true }),
+  ING('beef_mince_5', 'Beef mince 5%', 124, 20.5, 0, 4.5, 'protein', 9.5, { freezable: true }),
+  ING('salmon', 'Salmon fillet', 201, 20.4, 0, 13.1, 'protein', 17.0, { freezable: true }),
+  ING('cod', 'Cod / white fish', 82, 18.0, 0, 0.7, 'protein', 9.0, { freezable: true }),
+  ING('rice_dry', 'Basmati rice (dry)', 351, 8.0, 77.5, 0.6, 'carb', 2.2),
+  ING('pasta_dry', 'Pasta (dry)', 353, 12.5, 71.0, 1.5, 'carb', 1.5),
+  ING('orzo_dry', 'Orzo (dry)', 353, 12.5, 71.0, 1.5, 'carb', 1.8),
+  ING('noodles_dry', 'Egg noodles (dry)', 348, 12.0, 67.0, 2.0, 'carb', 3.5),
+  ING('couscous_dry', 'Couscous (dry)', 358, 12.8, 72.5, 0.6, 'carb', 2.5),
+  ING('potato', 'Potatoes', 77, 2.0, 17.0, 0.1, 'veg', 1.2),
+  ING('broccoli', 'Broccoli', 34, 2.8, 4.0, 0.4, 'veg', 2.5),
+  ING('courgette', 'Courgette', 17, 1.2, 2.2, 0.3, 'veg', 2.5),
+  ING('spinach', 'Spinach', 23, 2.9, 1.4, 0.4, 'veg', 5.0),
+  ING('peppers_mix', 'Mixed peppers / stir-fry veg', 30, 1.0, 5.0, 0.3, 'veg', 3.5),
+  ING('green_beans', 'Green beans', 31, 1.8, 4.7, 0.2, 'veg', 4.5),
+  ING('passata', 'Passata', 30, 1.3, 4.5, 0.2, 'veg', 1.2, { packSizeG: 500 }),
+  ING('chopped_tomatoes', 'Chopped tomatoes (can)', 25, 1.2, 3.5, 0.2, 'veg', 1.2, { packSizeG: 400 }),
+  ING('onion', 'Onion', 38, 1.0, 8.0, 0.1, 'veg', 1.2),
+  ING('kidney_beans_drained', 'Kidney beans (drained)', 90, 7.0, 12.0, 0.5, 'veg', 2.0, { packSizeG: 240 }),
+  ING('pesto', 'Pesto', 450, 4.5, 6.0, 45.0, 'fat', 6.0),
+  ING('olive_oil', 'Olive oil', 900, 0, 0, 100, 'pantry', 8.0),
+  ING('honey', 'Honey', 320, 0, 80.0, 0, 'pantry', 7.0),
+  ING('soy_sauce', 'Soy sauce', 60, 6.0, 8.0, 0, 'pantry', 6.0),
+  ING('skyr', 'Skyr, plain', 63, 10.6, 4.0, 0.2, 'dairy', 4.6, { packSizeG: 450 }),
+  ING('weetabix', 'Weetabix', 362, 12.0, 69.0, 2.0, 'carb', 5.0),
+  ING('oat_milk_unsweetened', 'Oat milk, unsweetened', 42, 0.8, 6.6, 1.3, 'dairy', 1.6, { packSizeG: 1000 }),
+  ING('banana', 'Banana', 89, 1.1, 20.5, 0.3, 'fruit', 1.5),
+  ING('apple', 'Apple', 52, 0.3, 12.0, 0.2, 'fruit', 2.5),
+  ING('chia', 'Chia seeds', 486, 16.5, 8.0, 30.7, 'fat', 10.0),
+  ING('dark_chocolate_85', 'Dark chocolate 85%', 590, 9.5, 22.0, 46.0, 'pantry', 12.0),
+  ING('nuts_mixed', 'Mixed nuts', 620, 21.0, 9.0, 54.0, 'fat', 11.0),
+  ING('oats', 'Oats', 372, 13.5, 60.0, 7.0, 'carb', 1.6),
+  ING('whey_protein', 'Whey protein', 375, 75.0, 8.0, 6.0, 'pantry', 25.0),
+  ING('tuna_drained', 'Tinned tuna in water (drained)', 116, 26.0, 0, 1.0, 'pantry', 8.5),
+  ING('rice_cakes', 'Rice cakes', 387, 8.0, 81.0, 3.0, 'carb', 6.0),
+  ING('cottage_cheese', 'Cottage cheese', 98, 11.0, 3.5, 4.5, 'dairy', 4.5, { packSizeG: 300 }),
+  ING('cherry_tomatoes', 'Cherry tomatoes', 18, 0.9, 2.7, 0.2, 'veg', 4.0),
 ]
 
 // ---------------------------------------------------------------------------
@@ -444,7 +446,8 @@ export const DEFAULT_SETTINGS: Settings = {
 }
 
 // v2: snack canon revision — F/G/H templates + their §10 ingredients added.
-export const STATE_VERSION = 2
+// v3: static Dublin price estimates — priceEurPerKg on every ingredient.
+export const STATE_VERSION = 3
 
 export function buildSeedState(): AppState {
   return {

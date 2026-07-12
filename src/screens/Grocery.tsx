@@ -10,6 +10,8 @@ import { IconCheck } from '../components/icons'
 // §6.3: one weekly shop — three sections, persists until the next generation,
 // re-computes on swap keeping checked items checked. Checked items recede.
 
+const eur = (v: number) => `€${v.toFixed(2)}`
+
 function CheckRow({ item, checked, onToggle }: { item: GroceryItem; checked: boolean; onToggle: () => void }) {
   // qty like "1280 g" or "7 × 450 g" → tabular number + muted unit
   const qty = item.qty?.match(/^([\d\s×]+)\s(g)$/)
@@ -23,8 +25,14 @@ function CheckRow({ item, checked, onToggle }: { item: GroceryItem; checked: boo
         {item.sub && <span className="tiny faint"> · {item.sub}</span>}
       </span>
       {item.qty && (
-        <span className="check-qty small" style={{ flexShrink: 0 }}>
-          {qty ? <Num v={qty[1]!.trim()} u={qty[2]} /> : <Num v={item.qty} />}
+        <span
+          className="check-qty"
+          style={{ flexShrink: 0, display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 0 }}
+        >
+          <span className="small">{qty ? <Num v={qty[1]!.trim()} u={qty[2]} /> : <Num v={item.qty} />}</span>
+          {item.costEur !== undefined && item.costEur > 0 && (
+            <span className="tiny faint">{eur(item.costEur)}</span>
+          )}
         </span>
       )}
     </button>
@@ -54,9 +62,9 @@ export function Grocery() {
   const all = [...list.fresh, ...list.freeze, ...list.pantry]
   const done = all.filter((i) => checked.has(i.key)).length
 
-  const sections: { title: string; sub: string; items: GroceryItem[] }[] = [
-    { title: 'Fresh', sub: 'use ≤ 2 days — S4 + S1 proteins, veg, fruit, dairy', items: list.fresh },
-    { title: 'Freeze on arrival', sub: 'S2 + S3 proteins — defrost prompts appear on Today', items: list.freeze },
+  const sections: { title: string; sub: string; items: GroceryItem[]; costEur?: number }[] = [
+    { title: 'Fresh', sub: 'use ≤ 2 days — S4 + S1 proteins, veg, fruit, dairy', items: list.fresh, costEur: list.costEur.fresh },
+    { title: 'Freeze on arrival', sub: 'S2 + S3 proteins — defrost prompts appear on Today', items: list.freeze, costEur: list.costEur.freeze },
     { title: 'Pantry check', sub: 'checklist, no quantities', items: list.pantry },
   ]
 
@@ -66,6 +74,11 @@ export function Grocery() {
       <p className="screen-sub">
         Shop {fmtShort(plan.weekStartISO)} · cycle {fmtDayMonth(plan.weekStartISO)} → {fmtDayMonth(addDays(plan.weekStartISO, 6))} ·{' '}
         <Num v={`${done}/${all.length}`} /> ticked
+        <br />
+        <span className="small">
+          Est. <Num v={`~€${Math.round(list.costEur.total)}`} />
+        </span>{' '}
+        <span className="tiny faint">· Dublin avg · fresh &amp; freeze only</span>
       </p>
 
       {sections.map((section) => {
@@ -75,6 +88,12 @@ export function Grocery() {
             <div className="row-between">
               <div className="card-title">{section.title}</div>
               <span className="small dim">
+                {section.costEur !== undefined && section.costEur > 0 && (
+                  <>
+                    <Num v={eur(section.costEur)} />
+                    <span className="faint"> · </span>
+                  </>
+                )}
                 <Num v={`${sectionDone}/${section.items.length}`} />
               </span>
             </div>

@@ -23,9 +23,24 @@ function migrateV1toV2(state: AppState): AppState {
   }
 }
 
+/**
+ * v2 → v3: static Dublin price estimates. Stamp priceEurPerKg onto stored
+ * ingredients from the seed (by id); ingredients aren't user-editable in v1,
+ * so seed prices are authoritative.
+ */
+function migrateV2toV3(state: AppState): AppState {
+  const priceById = new Map(SEED_INGREDIENTS.map((i) => [i.id, i.priceEurPerKg]))
+  return {
+    ...state,
+    version: 3,
+    ingredients: state.ingredients.map((i) => ({ ...i, priceEurPerKg: priceById.get(i.id) ?? i.priceEurPerKg })),
+  }
+}
+
 function migrate(raw: unknown): AppState {
   let state = raw as AppState
   if (state.version === 1) state = migrateV1toV2(state)
+  if (state.version === 2) state = migrateV2toV3(state)
   if (state.version !== STATE_VERSION) {
     throw new Error(`Unknown schema version: ${String(state.version)}`)
   }
