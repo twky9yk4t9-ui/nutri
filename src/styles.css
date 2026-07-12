@@ -18,18 +18,28 @@
   --dim: #9aa4b4;
   --faint: #828c9d;
 
-  /* one semantic accent + status vocabulary */
-  --accent: #4fc08a;        /* eaten · primary action */
-  --accent-ink: #071510;
+  /* identity palette — every color owns one meaning, glyphs always pair with it.
+     green=done · orange=attention/energy · cyan=protein/shop · blue=freeze/fish
+     red=beef/danger · yellow=breakfast/grains · mint=fresh food · purple=body data */
+  --green: #30d158;
+  --orange: #ff9f0a;
+  --cyan: #5ac8f5;
+  --blue: #409cff;
+  --red: #ff6961;
+  --yellow: #ffd426;
+  --mint: #63e6be;
+  --purple: #bf5af2;
+  --indigo: #7d7aff;
+
+  --accent: var(--green);   /* eaten · primary action */
+  --accent-ink: #06240f;
   --accent-dim: #2b5c46;
-  --eaten: #1d3a2c;
-  --eaten-border: #2f6a4d;
-  --warm: #d09a63;          /* off-plan · due tasks — muted warm */
-  --offplan: #382a21;
-  --offplan-border: #5e4633;
-  --amber: #d09a63;
-  --blue: #6aa9f0;          /* chart annotation only */
-  --red: #e06552;
+  --eaten: color-mix(in srgb, var(--green) 15%, var(--surface));
+  --eaten-border: color-mix(in srgb, var(--green) 40%, var(--surface));
+  --warm: var(--orange);    /* off-plan · due tasks */
+  --offplan: color-mix(in srgb, var(--orange) 13%, var(--surface));
+  --offplan-border: color-mix(in srgb, var(--orange) 38%, var(--surface));
+  --amber: var(--orange);
 
   /* type scale — 4 steps, weight does the contrast work */
   --t-display: 21px;
@@ -172,27 +182,89 @@ button:focus-visible {
   color: var(--faint);
 }
 
-/* day-progress: 5 segments, one per slot — fills as meals are logged */
-.progress-track {
+/* colored icon chip — category identity, habit-app style. Set the color
+   with a --chip custom property; the tint is derived from it. */
+.icon-chip {
+  --chip: var(--dim);
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: color-mix(in srgb, var(--chip) 15%, var(--surface-2));
+  color: var(--chip);
+}
+
+.icon-chip.sm {
+  width: 26px;
+  height: 26px;
+  border-radius: 8px;
+}
+
+/* day dots: one circle per slot — filled ✓ green when eaten, amber – when
+   off-plan, ring for the next slot, dim disc for later (widget week-row) */
+.daydot {
   display: flex;
-  gap: 4px;
-  margin: 10px 0 14px;
-}
-
-.progress-seg {
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
   flex: 1;
-  height: 6px;
-  border-radius: 3px;
+}
+
+.daydot-circle {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   background: var(--surface-3);
-  transition: background 200ms var(--ease);
+  border: 2px solid transparent;
+  color: transparent;
+  font-size: 14px;
+  font-weight: 800;
+  transition: background 200ms var(--ease), border-color 200ms var(--ease);
 }
 
-.progress-seg.eaten {
-  background: var(--accent);
+.daydot-circle.eaten {
+  background: var(--green);
+  color: var(--accent-ink);
 }
 
-.progress-seg.off-plan {
-  background: var(--warm);
+.daydot-circle.off-plan {
+  background: color-mix(in srgb, var(--orange) 26%, var(--surface-2));
+  color: var(--orange);
+}
+
+.daydot-circle.next {
+  background: transparent;
+  border-color: var(--green);
+}
+
+.daydot-label {
+  color: var(--faint);
+  display: inline-flex;
+}
+
+.daydot-label.today-col {
+  color: var(--text);
+}
+
+/* progress bar: eaten vs target (steps-widget style, flat fill, no glow) */
+.bar {
+  height: 8px;
+  border-radius: 4px;
+  background: var(--surface-3);
+  overflow: hidden;
+}
+
+.bar-fill {
+  height: 100%;
+  border-radius: 4px;
+  background: var(--bar-c, var(--accent));
+  transition: width 300ms var(--ease);
 }
 
 /* horizontal snap-scroll row (Week sessions) */
@@ -314,7 +386,7 @@ button:focus-visible {
 }
 
 .tab.active {
-  color: var(--accent);
+  color: var(--tab-c, var(--accent));
 }
 
 /* ---- cards & rows ------------------------------------------------------ */
@@ -586,35 +658,19 @@ button:focus-visible {
   color: #241708;
 }
 
-/* ---- week grid ----------------------------------------------------------- */
+/* ---- week grid: a circle per slot, same vocabulary as Today's day dots ---- */
 
-.grid-cell {
+.cell-tap {
   min-height: 48px;
-  border-radius: var(--radius-sm);
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 1px solid var(--line);
-  background: var(--surface-2);
-  color: transparent;
-  transition: background 150ms var(--ease);
 }
 
-.grid-cell.eaten {
-  background: var(--accent);
-  border-color: var(--accent);
-  color: var(--accent-ink);
-}
-
-.grid-cell.off-plan {
-  background: var(--offplan);
-  border-color: var(--offplan-border);
-  color: var(--warm);
-}
-
-.grid-cell.today {
-  border-color: var(--accent-dim);
-  box-shadow: inset 0 0 0 1px var(--accent-dim);
+.cell-tap .daydot-circle {
+  width: 32px;
+  height: 32px;
+  font-size: 13px;
 }
 
 /* ---- grocery ------------------------------------------------------------- */

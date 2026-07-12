@@ -4,6 +4,7 @@ import { SLOT_LABELS } from '../state/selectors'
 import { useApp } from '../state/store'
 import { useNav } from '../App'
 import { Num, MacroPair } from './Num'
+import { FoodChip } from './foodGlyph'
 import { IconCheck } from './icons'
 
 // §7 logging with a glanceable hierarchy: the next planned slot is the hero
@@ -99,16 +100,20 @@ export function SlotCard({
       <div className="slot-hero">
         <div className="row" style={{ alignItems: 'stretch' }}>
           <button
-            style={{ flex: 1, textAlign: 'left', padding: '16px 0 4px 16px' }}
+            className="row"
+            style={{ flex: 1, textAlign: 'left', padding: '16px 0 4px 16px', gap: 12, alignItems: 'flex-start' }}
             onClick={() => setExpanded((e) => !e)}
             aria-expanded={expanded}
             aria-label={`${aria} Tap for gram amounts.`}
           >
-            <div className="kicker">{SLOT_LABELS[slot.slot]} · up next</div>
-            <div style={{ fontWeight: 800, fontSize: 19, letterSpacing: '-0.01em', margin: '2px 0 4px' }}>
-              {recipe.name}
-            </div>
-            <MacroPair kcal={recipe.verified.kcal} p={recipe.verified.p} lg />
+            <FoodChip recipe={recipe} size={19} />
+            <span style={{ flex: 1, minWidth: 0 }}>
+              <div className="kicker">{SLOT_LABELS[slot.slot]} · up next</div>
+              <div style={{ fontWeight: 800, fontSize: 19, letterSpacing: '-0.01em', margin: '2px 0 4px' }}>
+                {recipe.name}
+              </div>
+              <MacroPair kcal={recipe.verified.kcal} p={recipe.verified.p} lg />
+            </span>
           </button>
           <button
             style={{ width: 48, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--faint)' }}
@@ -141,16 +146,20 @@ export function SlotCard({
     <div className="slot-row">
       <div className="row" style={{ alignItems: 'stretch' }}>
         <button
-          style={{ flex: 1, textAlign: 'left', padding: '12px 0 12px 14px', minHeight: 'var(--tap)' }}
+          className="row"
+          style={{ flex: 1, textAlign: 'left', padding: '12px 0 12px 14px', minHeight: 'var(--tap)', gap: 12 }}
           onClick={cycle}
           aria-label={`${aria} Tap to change status.`}
         >
-          <div className="kicker">
-            {SLOT_LABELS[slot.slot]}
-            {slot.status !== 'planned' && ` · ${statusLabel}`}
-          </div>
-          <div style={{ fontWeight: 700, margin: '1px 0 2px' }}>{recipe.name}</div>
-          <MacroPair kcal={recipe.verified.kcal} p={recipe.verified.p} />
+          <FoodChip recipe={recipe} sm />
+          <span style={{ flex: 1, minWidth: 0 }}>
+            <div className="kicker">
+              {SLOT_LABELS[slot.slot]}
+              {slot.status !== 'planned' && ` · ${statusLabel}`}
+            </div>
+            <div style={{ fontWeight: 700, margin: '1px 0 2px' }}>{recipe.name}</div>
+            <MacroPair kcal={recipe.verified.kcal} p={recipe.verified.p} />
+          </span>
         </button>
         <button
           style={{ width: 48, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--faint)' }}

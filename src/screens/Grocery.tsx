@@ -1,5 +1,5 @@
 import { useMemo } from 'react'
-import type { ReactNode } from 'react'
+import type { CSSProperties, ReactNode } from 'react'
 import type { GroceryItem, GroceryList } from '../domain/grocery'
 import { buildGroceryList } from '../domain/grocery'
 import { fmtShort, todayISO } from '../domain/dates'
@@ -66,10 +66,10 @@ export function Grocery() {
   // checked items sink to the bottom of their section (stable within groups)
   const sunk = (items: GroceryItem[]) => [...items.filter((i) => !checked.has(i.key)), ...items.filter((i) => checked.has(i.key))]
 
-  const sections: { title: string; icon: ReactNode; items: GroceryItem[]; costEur?: number }[] = [
-    { title: 'Fresh', icon: <IconLeaf size={17} />, items: sunk(list.fresh), costEur: list.costEur.fresh },
-    { title: 'Freeze on arrival', icon: <IconSnow size={17} />, items: sunk(list.freeze), costEur: list.costEur.freeze },
-    { title: 'Pantry check', icon: <IconBox size={17} />, items: sunk(list.pantry) },
+  const sections: { title: string; color: string; icon: ReactNode; items: GroceryItem[]; costEur?: number }[] = [
+    { title: 'Fresh', color: 'var(--green)', icon: <IconLeaf size={15} />, items: sunk(list.fresh), costEur: list.costEur.fresh },
+    { title: 'Freeze on arrival', color: 'var(--blue)', icon: <IconSnow size={15} />, items: sunk(list.freeze), costEur: list.costEur.freeze },
+    { title: 'Pantry check', color: 'var(--yellow)', icon: <IconBox size={15} />, items: sunk(list.pantry) },
   ]
 
   return (
@@ -78,7 +78,7 @@ export function Grocery() {
         title="Grocery"
         sub={
           <>
-            <span className="num num-lg" style={{ fontSize: 22 }}>
+            <span className="num num-lg" style={{ fontSize: 22, color: 'var(--cyan)' }}>
               ~€{Math.round(list.costEur.total)}
             </span>
             <span className="tiny faint"> est</span>
@@ -91,8 +91,8 @@ export function Grocery() {
 
       {sections.map((section) => (
         <div className="card" style={{ padding: '10px 14px' }} key={section.title}>
-          <div className="row" style={{ gap: 10, minHeight: 36 }}>
-            <span className="faint" style={{ display: 'inline-flex' }}>
+          <div className="row" style={{ gap: 10, minHeight: 40 }}>
+            <span className="icon-chip sm" style={{ '--chip': section.color } as CSSProperties}>
               {section.icon}
             </span>
             <span className="group-label" style={{ flex: 1 }}>

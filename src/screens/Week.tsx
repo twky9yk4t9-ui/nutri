@@ -9,10 +9,42 @@ import { GenerateSheet } from '../components/GenerateSheet'
 import { ScreenHeader } from '../components/ScreenHeader'
 import { SessionChip } from '../components/SessionCard'
 import { SwapSheet } from '../components/SwapSheet'
-import { Num } from '../components/Num'
+import { SLOT_GLYPH } from '../components/foodGlyph'
 import { IconChevronLeft, IconChevronRight, IconWeek } from '../components/icons'
 
 const SESSION_ORDER: SessionId[] = ['S4', 'S1', 'S2', 'S3']
+
+/** Activity-style adherence ring: one green figure, zero words. */
+function Ring({ pct, sub }: { pct: number; sub?: string }) {
+  const size = 52
+  const stroke = 5
+  const r = (size - stroke) / 2
+  const c = 2 * Math.PI * r
+  return (
+    <span className="center" style={{ display: 'inline-flex', flexDirection: 'column', alignItems: 'center', gap: 1 }}>
+      <svg width={size} height={size} role="img" aria-label={`${pct}% adherence`}>
+        <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="var(--surface-3)" strokeWidth={stroke} />
+        <circle
+          cx={size / 2}
+          cy={size / 2}
+          r={r}
+          fill="none"
+          stroke="var(--green)"
+          strokeWidth={stroke}
+          strokeLinecap="round"
+          strokeDasharray={c}
+          strokeDashoffset={c * (1 - pct / 100)}
+          transform={`rotate(-90 ${size / 2} ${size / 2})`}
+          style={{ transition: 'stroke-dashoffset 400ms var(--ease)' }}
+        />
+        <text x="50%" y="54%" dominantBaseline="middle" textAnchor="middle" fontSize={13} fontWeight={800} fill="var(--text)">
+          {pct}
+        </text>
+      </svg>
+      {sub && <span className="tiny faint">{sub}</span>}
+    </span>
+  )
+}
 
 export function Week() {
   const { state, dispatch } = useApp()
@@ -48,17 +80,9 @@ export function Week() {
             </span>
           )}
         </div>
-        <div className="row" style={{ gap: 4 }}>
+        <div className="row" style={{ gap: 6 }}>
           {adherence && adherence.pct !== null && (
-            <span className="center" style={{ marginRight: 4 }}>
-              <span className="num num-lg">{adherence.pct}</span>
-              <span className="unit">%</span>
-              {sessions && (
-                <div className="tiny faint">
-                  <Num v={`${sessions.done}/${sessions.total}`} /> cooked
-                </div>
-              )}
-            </span>
+            <Ring pct={adherence.pct} sub={sessions ? `${sessions.done}/${sessions.total}` : undefined} />
           )}
           <button className="btn" style={{ minWidth: 48, padding: 0 }} onClick={() => setCycleSat(addDays(cycleSat, 7))} aria-label="Next cycle">
             <IconChevronRight size={18} />
@@ -82,8 +106,8 @@ export function Week() {
             <div
               style={{
                 display: 'grid',
-                gridTemplateColumns: '30px repeat(7, 1fr)',
-                gap: 5,
+                gridTemplateColumns: '32px repeat(7, 1fr)',
+                gap: 4,
                 alignItems: 'stretch',
               }}
             >
@@ -92,27 +116,18 @@ export function Week() {
                 const isToday = d === today
                 return (
                   <div key={d} className="center" style={{ paddingBottom: 4 }}>
-                    <div className="tiny" style={{ fontWeight: 700, color: isToday ? 'var(--accent)' : 'var(--dim)' }}>
+                    <div className="tiny" style={{ fontWeight: 700, color: isToday ? 'var(--green)' : 'var(--dim)' }}>
                       {dayName(d)}
                     </div>
-                    <div className="tiny faint">{fmtDayMonth(d).split(' ')[0]}</div>
+                    <div className="tiny" style={{ color: isToday ? 'var(--green)' : 'var(--faint)' }}>
+                      {fmtDayMonth(d).split(' ')[0]}
+                    </div>
                   </div>
                 )
               })}
               {SLOT_ORDER.map((slotKey: SlotKey) => (
                 <SlotGridRow key={slotKey} slotKey={slotKey} dates={dates} plan={plan} today={today} dispatch={dispatch} recipes={recipes} />
               ))}
-            </div>
-            <div className="row tiny faint" style={{ gap: 12, justifyContent: 'center', marginTop: 10 }}>
-              <span className="row" style={{ gap: 4 }}>
-                <Dot cls="" /> planned
-              </span>
-              <span className="row" style={{ gap: 4 }}>
-                <Dot cls="eaten" /> eaten
-              </span>
-              <span className="row" style={{ gap: 4 }}>
-                <Dot cls="off-plan" /> off-plan
-              </span>
             </div>
           </div>
 
@@ -144,21 +159,13 @@ export function Week() {
           <button className="btn btn-ghost btn-block" style={{ color: 'var(--dim)' }} onClick={() => setShowGenerate(true)}>
             Regenerate this cycle…
           </button>
+          <p className="footnote center">Tap a circle to log — ✓ eaten · – off-plan</p>
         </>
       )}
 
       {showGenerate && <GenerateSheet satISO={cycleSat} replaces={Boolean(plan)} onClose={() => setShowGenerate(false)} />}
       {swapping && plan && <SwapSheet plan={plan} sessionId={swapping} onClose={() => setSwapping(null)} />}
     </>
-  )
-}
-
-function Dot({ cls }: { cls: string }) {
-  return (
-    <span
-      className={`grid-cell ${cls}`}
-      style={{ minHeight: 12, width: 12, height: 12, borderRadius: 4, padding: 0, display: 'inline-block' }}
-    />
   )
 }
 
@@ -177,24 +184,27 @@ function SlotGridRow({
   dispatch: ReturnType<typeof useApp>['dispatch']
   recipes: Map<string, { name: string }>
 }) {
+  const g = SLOT_GLYPH[slotKey]
   return (
     <>
-      <div className="tiny faint" style={{ alignSelf: 'center', fontWeight: 700 }}>
-        {slotKey}
+      <div style={{ alignSelf: 'center', color: g.color, opacity: 0.85, display: 'inline-flex', justifyContent: 'center' }} title={SLOT_LABELS[slotKey]}>
+        {g.icon(15)}
       </div>
       {dates.map((date) => {
         const slot = plan.slots.find((s) => s.date === date && s.slot === slotKey)
         if (!slot) return <div key={date} />
+        const isToday = date === today
+        const cls = slot.status !== 'planned' ? slot.status : isToday ? 'next' : ''
         return (
           <button
             key={date}
-            className={`grid-cell ${slot.status === 'planned' ? '' : slot.status}${date === today ? ' today' : ''}`}
-            style={{ minHeight: 54 }}
+            className="cell-tap"
             onClick={() => dispatch({ type: 'cycleSlotStatus', date, slot: slotKey })}
             aria-label={`${fmtShort(date)} ${SLOT_LABELS[slotKey]}: ${recipes.get(slot.recipeId)?.name ?? slot.recipeId}, ${slot.status}. Tap to change.`}
           >
-            {slot.status === 'eaten' && <span style={{ fontSize: 14, fontWeight: 800 }}>✓</span>}
-            {slot.status === 'off-plan' && <span style={{ fontSize: 14, fontWeight: 800 }}>–</span>}
+            <span className={`daydot-circle ${cls}`} aria-hidden>
+              {slot.status === 'eaten' ? '✓' : slot.status === 'off-plan' ? '–' : ''}
+            </span>
           </button>
         )
       })}

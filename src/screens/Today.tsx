@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react'
+import type { CSSProperties } from 'react'
 import type { PlanSlot } from '../domain/types'
 import { useApp } from '../state/store'
 import { fmtShort, todayISO } from '../domain/dates'
@@ -9,16 +10,60 @@ import { GenerateSheet } from '../components/GenerateSheet'
 import { ScreenHeader } from '../components/ScreenHeader'
 import { SlotCard, type SlotVariant } from '../components/SlotCard'
 import { SessionCard } from '../components/SessionCard'
+import { SLOT_GLYPH } from '../components/foodGlyph'
 import { Num } from '../components/Num'
 import { IconBowl, IconPlus, IconScale, IconSnow } from '../components/icons'
 
-/** Five segments, one per slot — fills as the day is logged. Teaches the app with zero words. */
-function DayProgress({ slots }: { slots: PlanSlot[] }) {
+/** One circle per slot (widget week-row style): ✓ eaten, – off-plan,
+ *  ring = up next. The slot glyph beneath names it without words. */
+function DayDots({ slots }: { slots: PlanSlot[] }) {
+  const nextKey = slots.find((s) => s.status === 'planned')?.slot
   return (
-    <div className="progress-track" role="img" aria-label={`${slots.filter((s) => s.status === 'eaten').length} of ${slots.length} meals eaten`}>
-      {slots.map((s) => (
-        <span key={s.slot} className={`progress-seg${s.status !== 'planned' ? ` ${s.status}` : ''}`} />
-      ))}
+    <div
+      className="row"
+      style={{ gap: 4, alignItems: 'flex-start' }}
+      role="img"
+      aria-label={`${slots.filter((s) => s.status === 'eaten').length} of ${slots.length} meals eaten`}
+    >
+      {slots.map((s) => {
+        const g = SLOT_GLYPH[s.slot]
+        const cls = s.status !== 'planned' ? s.status : s.slot === nextKey ? 'next' : ''
+        return (
+          <span key={s.slot} className="daydot">
+            <span className={`daydot-circle ${cls}`} aria-hidden>
+              {s.status === 'eaten' ? '✓' : s.status === 'off-plan' ? '–' : ''}
+            </span>
+            <span className="daydot-label" style={{ color: g.color, opacity: 0.8 }} aria-hidden>
+              {g.icon(13)}
+            </span>
+          </span>
+        )
+      })}
+    </div>
+  )
+}
+
+/** Eaten so far vs daily target — flat colored fill, no glow. */
+function TargetBar({ value, target, unit, color }: { value: number; target: number; unit: string; color: string }) {
+  const pct = target > 0 ? Math.round((value / target) * 100) : 0
+  return (
+    <div style={{ marginTop: 12 }}>
+      <div className="row-between" style={{ alignItems: 'baseline', marginBottom: 5 }}>
+        <span>
+          <span className="num" style={{ fontSize: 20, fontWeight: 800 }}>
+            {Math.round(value)}
+          </span>
+          <span className="unit">
+            /{target} {unit}
+          </span>
+        </span>
+        <span className="tiny" style={{ color, fontWeight: 700 }}>
+          {pct}%
+        </span>
+      </div>
+      <div className="bar" role="img" aria-label={`${Math.round(value)} of ${target} ${unit} eaten`}>
+        <div className="bar-fill" style={{ width: `${Math.min(100, pct)}%`, '--bar-c': color } as CSSProperties} />
+      </div>
     </div>
   )
 }
@@ -41,13 +86,13 @@ function WeightRow({ date }: { date: string }) {
   return (
     <div className="card" style={{ padding: '2px 14px' }}>
       <button className="row" style={{ width: '100%', minHeight: 52, textAlign: 'left' }} onClick={() => setOpen((o) => !o)} aria-expanded={open}>
-        <span className="row-icon">
+        <span className="icon-chip" style={{ '--chip': 'var(--purple)' } as CSSProperties}>
           <IconScale size={18} />
         </span>
         <span style={{ flex: 1, fontWeight: 600 }}>Weight</span>
         {existing ? (
           <span>
-            <Num v={existing.kg.toFixed(1)} u="kg" /> <span className="tiny" style={{ color: 'var(--accent)' }}>✓</span>
+            <Num v={existing.kg.toFixed(1)} u="kg" /> <span className="tiny" style={{ color: 'var(--green)' }}>✓</span>
           </span>
         ) : (
           <span className="row dim small" style={{ gap: 4 }}>
@@ -88,36 +133,33 @@ export function Today() {
   const tasks = plan ? tasksOn(plan, today) : []
   const cookSession = sessionCookingOn(plan, today)
   const target = generateTarget(state, today)
+  const targets = state.settings.targets
 
-  const dayMacros = useMemo(() => plannedMacros(slots.map((s) => s.recipeId), recipes), [slots, recipes])
+  const eaten = useMemo(
+    () => plannedMacros(slots.filter((s) => s.status === 'eaten').map((s) => s.recipeId), recipes),
+    [slots, recipes],
+  )
   const nextKey = slots.find((s) => s.status === 'planned')?.slot
   const variantFor = (slot: PlanSlot): SlotVariant =>
     slot.status !== 'planned' ? 'done' : slot.slot === nextKey ? 'hero' : 'row'
 
   return (
     <>
-      <ScreenHeader
-        title="Today"
-        sub={
-          <>
-            {fmtShort(today)}
-            {slots.length > 0 && (
-              <>
-                {'  ·  '}
-                <Num v={Math.round(dayMacros.kcal)} u="kcal" /> <Num v={Math.round(dayMacros.p)} u="P" />
-              </>
-            )}
-          </>
-        }
-      />
+      <ScreenHeader title="Today" sub={fmtShort(today)} />
 
-      {slots.length > 0 && <DayProgress slots={slots} />}
+      {slots.length > 0 && (
+        <div className="card">
+          <DayDots slots={slots} />
+          <TargetBar value={eaten.kcal} target={targets.kcal} unit="kcal" color="var(--orange)" />
+          <TargetBar value={eaten.p} target={targets.p} unit="g protein" color="var(--cyan)" />
+        </div>
+      )}
 
       <WeightRow date={today} />
 
       {tasks.map((task) => (
         <div className="banner" key={task}>
-          <span className="banner-icon">
+          <span className="banner-icon" style={{ color: 'var(--blue)' }}>
             <IconSnow size={18} />
           </span>
           <span>{task}</span>

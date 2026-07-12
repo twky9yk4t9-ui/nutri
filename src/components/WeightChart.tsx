@@ -81,7 +81,7 @@ export function WeightChart({ weights }: { weights: WeightEntry[] }) {
             x2={clampX(x(addDays(w.mondayISO, 6)))}
             y1={y(w.kg)}
             y2={y(w.kg)}
-            stroke="var(--blue)"
+            stroke="var(--cyan)"
             strokeWidth={2.5}
             strokeLinecap="round"
             opacity={0.85}
@@ -92,7 +92,7 @@ export function WeightChart({ weights }: { weights: WeightEntry[] }) {
           <polyline
             points={rolling.map((r) => `${x(r.dateISO)},${y(r.kg)}`).join(' ')}
             fill="none"
-            stroke="var(--accent)"
+            stroke="var(--purple)"
             strokeWidth={2}
             strokeLinejoin="round"
           />
@@ -104,8 +104,8 @@ export function WeightChart({ weights }: { weights: WeightEntry[] }) {
       </svg>
       <div className="row tiny dim" style={{ gap: 12, justifyContent: 'center', marginTop: 6 }}>
         <span>● daily</span>
-        <span style={{ color: 'var(--accent)' }}>— 7-day rolling</span>
-        <span style={{ color: 'var(--blue)' }}>— weekly avg</span>
+        <span style={{ color: 'var(--purple)' }}>— 7-day rolling</span>
+        <span style={{ color: 'var(--cyan)' }}>— weekly avg</span>
       </div>
     </>
   )

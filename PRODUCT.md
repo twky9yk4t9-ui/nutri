@@ -27,7 +27,7 @@ Calm · glanceable · self-explanatory. Apple Health / Fitness product language:
 1. **Three-second comprehension.** Every screen passes the test: a first-time user knows what it's for and what to tap without reading body text. Content leads; documentation retires to footnotes or ⓘ.
 2. **The next action dominates.** Today leads with a hero (next meal / due cook work) and a wordless 5-segment day-progress track; everything completed collapses to quiet lines.
 3. **Progressive disclosure.** Nothing is an always-open form — compact summary rows expand or open focused sheets (weight, settings groups).
-4. **Color = meaning, glyphs always accompany it.** Green only for done/eaten, warm amber only for needs-attention, one calm accent for primary actions; large surfaces stay neutral.
+4. **Color = identity, glyphs always accompany it.** A fixed multi-hue vocabulary (habit-app / Apple Fitness style): green=done, orange=attention/energy, cyan=protein/shop, blue=freeze/fish, red=beef, yellow=breakfast/grains, mint=fresh food, purple=body data, indigo=evening. Color appears as vivid fills on small elements (dots, chips, bars, rings, figures) — large surfaces stay neutral dark, and a glyph always carries the same meaning for color-blind reading.
 5. **Numbers are the product.** Tabular numerals everywhere; large figures, muted unit labels; columns never jitter.
 6. **No interpretation.** Display-only data surfaces (§1 hard rule); the UI never editorialises the numbers.
 

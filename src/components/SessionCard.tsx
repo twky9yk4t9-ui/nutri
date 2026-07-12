@@ -3,7 +3,7 @@ import { addDays, fmtShort } from '../domain/dates'
 import { SESSION_SHAPES } from '../domain/rotation'
 import { useApp } from '../state/store'
 import { useNav } from '../App'
-import { foodGlyph } from './foodGlyph'
+import { FoodChip } from './foodGlyph'
 import { IconCheck, IconSwap } from './icons'
 
 /** Full-width card — Today's due cook session (amber = needs attention). */
@@ -38,9 +38,7 @@ export function SessionCard({
       }
     >
       <div className="row" style={{ gap: 12 }}>
-        <span className="row-icon" style={highlight ? { color: 'var(--warm)' } : undefined}>
-          {foodGlyph(recipe)}
-        </span>
+        <FoodChip recipe={recipe} />
         <div style={{ flex: 1, minWidth: 0 }}>
           <div className="kicker" style={highlight ? { color: 'var(--warm)' } : undefined}>
             {session.id} · cook {fmtShort(cookDate)}{highlight && ' · due'}
@@ -70,7 +68,7 @@ export function SessionCard({
       </div>
       <div className="row mt" style={{ gap: 8 }}>
         <button className="btn" style={{ flex: 1 }} onClick={() => openRecipe(recipe.id, session.portions)}>
-          Open recipe at {session.portions} servings
+          Open recipe · {session.portions}×
         </button>
         {onSwap && (
           <button className="btn" onClick={onSwap} aria-label={`Swap recipe for session ${session.id}`}>
@@ -104,7 +102,7 @@ export function SessionChip({
   return (
     <div className="card mb0" style={{ width: 190, padding: 12 }}>
       <div className="row-between">
-        <span className="row-icon">{foodGlyph(recipe)}</span>
+        <FoodChip recipe={recipe} />
         <button
           style={{
             width: 48,

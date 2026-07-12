@@ -78,26 +78,40 @@ export function Trends() {
       <ScreenHeader title="Trends" />
 
       <div className="card" style={{ padding: '12px 8px 8px' }}>
-        <div className="row-between" style={{ padding: '0 8px 8px' }}>
-          <div className="card-title">Weight</div>
+        <div style={{ padding: '0 8px 10px' }}>
+          <div className="group-label">Weight</div>
           {latest && (
-            <span className="small dim">
-              latest <Num v={latest.kg.toFixed(1)} u="kg" />
+            <div className="row" style={{ alignItems: 'baseline', gap: 10, marginTop: 2 }}>
+              <span>
+                <span style={{ fontSize: 30, fontWeight: 800, letterSpacing: '-0.02em', color: 'var(--purple)' }}>
+                  {latest.kg.toFixed(1)}
+                </span>
+                <span className="unit">kg</span>
+              </span>
               {latestRoll && (
-                <>
-                  {' '}
-                  · 7-day <Num v={latestRoll.kg.toFixed(1)} u="kg" />
-                </>
+                <span className="small dim">
+                  7-day <Num v={latestRoll.kg.toFixed(1)} u="kg" />
+                </span>
               )}
-            </span>
+            </div>
           )}
         </div>
         <WeightChart weights={state.weights} />
       </div>
 
       <div className="card">
-        <div className="row-between" style={{ marginBottom: 8 }}>
-          <div className="card-title">Weekly adherence</div>
+        <div className="row-between" style={{ marginBottom: 8, alignItems: 'flex-start' }}>
+          <div>
+            <div className="group-label">Adherence</div>
+            {bars[bars.length - 1]?.adherence.pct !== null && bars.length > 0 && (
+              <div style={{ marginTop: 2 }}>
+                <span style={{ fontSize: 30, fontWeight: 800, letterSpacing: '-0.02em', color: 'var(--green)' }}>
+                  {bars[bars.length - 1]!.adherence.pct}
+                </span>
+                <span className="unit">% this week</span>
+              </div>
+            )}
+          </div>
           <span className="tiny faint">Mon–Sun</span>
         </div>
         <div style={{ display: 'flex', gap: 4, alignItems: 'flex-end', height: 96 }}>

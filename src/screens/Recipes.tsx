@@ -4,7 +4,7 @@ import type { Recipe, RecipeTag } from '../domain/types'
 import { useApp } from '../state/store'
 import { useNav } from '../App'
 import { ScreenHeader } from '../components/ScreenHeader'
-import { foodGlyph } from '../components/foodGlyph'
+import { FoodChip } from '../components/foodGlyph'
 import { Num } from '../components/Num'
 import { IconBolt, IconClock, IconInfo, IconPot } from '../components/icons'
 
@@ -17,15 +17,21 @@ const TAG_GLYPH: Record<RecipeTag, (size: number) => ReactNode> = {
   bigpot: (s) => <IconPot size={s} />,
 }
 
+const TAG_COLOR: Record<RecipeTag, string> = {
+  quick: 'var(--yellow)',
+  keeper: 'var(--cyan)',
+  bigpot: 'var(--orange)',
+}
+
 function RecipeRow({ recipe }: { recipe: Recipe }) {
   const { openRecipe } = useNav()
   return (
     <button className="check-row" style={{ gap: 12 }} onClick={() => openRecipe(recipe.id, 1)} aria-label={`Open ${recipe.name}`}>
-      <span className="row-icon">{foodGlyph(recipe)}</span>
+      <FoodChip recipe={recipe} />
       <span style={{ flex: 1, minWidth: 0, display: 'flex', alignItems: 'center', gap: 6 }}>
         <span style={{ fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{recipe.name}</span>
         {recipe.tags.map((t) => (
-          <span key={t} className="faint" style={{ flexShrink: 0, display: 'inline-flex' }} title={t}>
+          <span key={t} style={{ flexShrink: 0, display: 'inline-flex', color: TAG_COLOR[t], opacity: 0.85 }} title={t}>
             {TAG_GLYPH[t](13)}
           </span>
         ))}
@@ -75,8 +81,12 @@ export function Recipes() {
           </div>
           {gi === 0 && showLegend && (
             <p className="footnote" style={{ margin: '0 4px 8px' }}>
-              <IconBolt size={11} /> quick — 20-min one-pan, Tuesday-friendly · <IconClock size={11} /> keeper — holds 2+ days ·{' '}
-              <IconPot size={11} /> big pot — scales easily to 4
+              <span style={{ color: TAG_COLOR.quick }}><IconBolt size={11} /></span> quick — 20-min one-pan, Tuesday-friendly ·{' '}
+              <span style={{ color: TAG_COLOR.keeper }}><IconClock size={11} /></span> keeper — holds 2+ days ·{' '}
+              <span style={{ color: TAG_COLOR.bigpot }}><IconPot size={11} /></span> big pot — scales easily to 4 ·{' '}
+              chip color = protein: <span style={{ color: 'var(--orange)' }}>chicken</span> <span style={{ color: 'var(--red)' }}>beef</span>{' '}
+              <span style={{ color: 'var(--blue)' }}>fish</span> <span style={{ color: 'var(--purple)' }}>whey</span>{' '}
+              <span style={{ color: 'var(--mint)' }}>fresh</span>
             </p>
           )}
           <div className="card" style={{ padding: '2px 14px' }}>

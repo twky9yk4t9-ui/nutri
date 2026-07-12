@@ -170,6 +170,19 @@ export const IconApple = ({ size }: IconProps) => (
   </svg>
 )
 
+export const IconMoon = ({ size }: IconProps) => (
+  <svg {...svgProps(size)}>
+    <path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5Z" />
+  </svg>
+)
+
+export const IconSun = ({ size }: IconProps) => (
+  <svg {...svgProps(size)}>
+    <circle cx="12" cy="12" r="4.2" />
+    <path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3M5 5l2.1 2.1M16.9 16.9 19 19M19 5l-2.1 2.1M7.1 16.9 5 19" />
+  </svg>
+)
+
 /* ---- tag & section glyphs ---- */
 
 export const IconBolt = ({ size }: IconProps) => (

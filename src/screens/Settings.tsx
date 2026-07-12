@@ -1,5 +1,5 @@
 import { useRef, useState } from 'react'
-import type { ReactNode } from 'react'
+import type { CSSProperties, ReactNode } from 'react'
 import type { AppState } from '../domain/types'
 import { useApp } from '../state/store'
 import { useNav } from '../App'
@@ -166,10 +166,11 @@ export function Settings() {
   const [sheet, setSheet] = useState<'targets' | 'rhythm' | 'backup' | null>(null)
   const t = state.settings.targets
 
-  const rows: { id: 'targets' | 'rhythm' | 'backup'; icon: ReactNode; title: string; summary: ReactNode }[] = [
+  const rows: { id: 'targets' | 'rhythm' | 'backup'; icon: ReactNode; color: string; title: string; summary: ReactNode }[] = [
     {
       id: 'targets',
       icon: <IconToday size={17} />,
+      color: 'var(--orange)',
       title: 'Daily targets',
       summary: (
         <>
@@ -180,12 +181,14 @@ export function Settings() {
     {
       id: 'rhythm',
       icon: <IconWeek size={17} />,
+      color: 'var(--green)',
       title: 'Week rhythm',
       summary: `Shop ${state.settings.shopDay} · Plan ${state.settings.planGenDay}`,
     },
     {
       id: 'backup',
       icon: <IconBox size={17} />,
+      color: 'var(--blue)',
       title: 'Backup',
       summary: `${state.weeks.length} plans · ${state.weights.length} weights`,
     },
@@ -205,7 +208,7 @@ export function Settings() {
       <div className="card" style={{ padding: '2px 14px', marginTop: 12 }}>
         {rows.map((row) => (
           <button key={row.id} className="disclosure-row" onClick={() => setSheet(row.id)}>
-            <span className="row-icon">{row.icon}</span>
+            <span className="icon-chip" style={{ '--chip': row.color } as CSSProperties}>{row.icon}</span>
             <span style={{ flex: 1, minWidth: 0 }}>
               <div style={{ fontWeight: 600 }}>{row.title}</div>
               <div className="small dim" style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
