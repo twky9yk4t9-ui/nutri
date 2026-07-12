@@ -119,11 +119,9 @@ export function GenerateSheet({
       </div>
 
       <hr className="divider" />
-      <div className="card-title">Snacks for the week</div>
-      <p className="tiny dim" style={{ margin: '2px 0 10px' }}>
-        Two snacks a day from your pick of 2–3. Max one Skyr snack (A′/B′/D′) per day · ≥20 g combined snack protein
-        {salmonInPlan && ' — salmon days draw from the low-fat set (B′/D′/F/G)'}.
-      </p>
+      <div className="card-title" style={{ marginBottom: 8 }}>
+        Snacks for the week
+      </div>
       <div className="row" style={{ flexWrap: 'wrap', gap: 8 }}>
         {snackTemplates.map((s) => {
           const active = pick.includes(s.id)
@@ -149,6 +147,10 @@ export function GenerateSheet({
       <button className="btn btn-accent btn-block mt" onClick={confirm} disabled={Boolean(pickError)}>
         {replaces ? 'Replace plan' : 'Confirm plan'}
       </button>
+      <p className="footnote">
+        Two snacks a day from your pick of 2–3 · max one Skyr snack (A′/B′/D′) per day · ≥20 g combined snack protein
+        {salmonInPlan && ' · salmon days draw from B′/D′/F/G'}
+      </p>
     </Sheet>
   )
 }

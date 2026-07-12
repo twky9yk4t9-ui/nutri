@@ -19,6 +19,9 @@ interface Nav {
   /** Open a recipe detail, optionally preset to a session's portion count (§9.3). */
   openRecipe: (recipeId: string, servings?: number) => void
   closeRecipe: () => void
+  /** Settings is a pushed view behind the header gear (no tab of its own). */
+  openSettings: () => void
+  closeSettings: () => void
 }
 
 const NavContext = createContext<Nav | null>(null)
@@ -32,15 +35,19 @@ export function useNav(): Nav {
 export default function App() {
   const [tab, setTab] = useState<Tab>('today')
   const [recipeView, setRecipeView] = useState<RecipeViewState | null>(null)
+  const [settingsOpen, setSettingsOpen] = useState(false)
 
   const nav: Nav = {
     tab,
     setTab: (t) => {
       setRecipeView(null)
+      setSettingsOpen(false)
       setTab(t)
     },
     openRecipe: (recipeId, servings = 1) => setRecipeView({ recipeId, servings }),
     closeRecipe: () => setRecipeView(null),
+    openSettings: () => setSettingsOpen(true),
+    closeSettings: () => setSettingsOpen(false),
   }
 
   return (
@@ -48,6 +55,8 @@ export default function App() {
       <div className="app">
         {recipeView ? (
           <RecipeDetail recipeId={recipeView.recipeId} initialServings={recipeView.servings} />
+        ) : settingsOpen ? (
+          <Settings />
         ) : (
           <>
             {tab === 'today' && <Today />}
@@ -55,7 +64,6 @@ export default function App() {
             {tab === 'recipes' && <Recipes />}
             {tab === 'grocery' && <Grocery />}
             {tab === 'trends' && <Trends />}
-            {tab === 'settings' && <Settings />}
           </>
         )}
       </div>

@@ -3,6 +3,7 @@ import { todayISO, fmtShort } from '../domain/dates'
 import { lastNWeeks } from '../domain/adherence'
 import { rolling7 } from '../domain/weights'
 import { useApp } from '../state/store'
+import { ScreenHeader } from '../components/ScreenHeader'
 import { WeightChart } from '../components/WeightChart'
 import { Num } from '../components/Num'
 
@@ -74,8 +75,7 @@ export function Trends() {
 
   return (
     <>
-      <h1 className="screen-title">Trends</h1>
-      <p className="screen-sub">Display only — the app never adjusts targets.</p>
+      <ScreenHeader title="Trends" />
 
       <div className="card" style={{ padding: '12px 8px 8px' }}>
         <div className="row-between" style={{ padding: '0 8px 8px' }}>
@@ -96,12 +96,9 @@ export function Trends() {
       </div>
 
       <div className="card">
-        <div className="row-between">
+        <div className="row-between" style={{ marginBottom: 8 }}>
           <div className="card-title">Weekly adherence</div>
-          <span className="tiny faint">weeks start Monday</span>
-        </div>
-        <div className="tiny faint" style={{ marginBottom: 8 }}>
-          % of slots eaten · cook sessions done below
+          <span className="tiny faint">Mon–Sun</span>
         </div>
         <div style={{ display: 'flex', gap: 4, alignItems: 'flex-end', height: 96 }}>
           {bars.map((b) => {
@@ -145,6 +142,8 @@ export function Trends() {
           ))}
         </ul>
       </div>
+
+      <p className="footnote center">Display only — % of slots eaten per Mon–Sun week · the app never adjusts targets</p>
     </>
   )
 }

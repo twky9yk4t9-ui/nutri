@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react'
-import { IconGrocery, IconRecipes, IconSettings, IconToday, IconTrends, IconWeek } from './icons'
+import { IconGrocery, IconRecipes, IconToday, IconTrends, IconWeek } from './icons'
 
-export type Tab = 'today' | 'week' | 'recipes' | 'grocery' | 'trends' | 'settings'
+export type Tab = 'today' | 'week' | 'recipes' | 'grocery' | 'trends'
 
 const TABS: { id: Tab; label: string; icon: () => ReactNode }[] = [
   { id: 'today', label: 'Today', icon: () => <IconToday /> },
@@ -9,7 +9,6 @@ const TABS: { id: Tab; label: string; icon: () => ReactNode }[] = [
   { id: 'recipes', label: 'Recipes', icon: () => <IconRecipes /> },
   { id: 'grocery', label: 'Grocery', icon: () => <IconGrocery /> },
   { id: 'trends', label: 'Trends', icon: () => <IconTrends /> },
-  { id: 'settings', label: 'Settings', icon: () => <IconSettings /> },
 ]
 
 export function TabBar({ active, onSelect }: { active: Tab; onSelect: (tab: Tab) => void }) {

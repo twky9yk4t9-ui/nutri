@@ -9,6 +9,7 @@ import { debouncedSave, flushSave, loadState } from './persist'
 export type Action =
   | { type: 'storePlan'; plan: WeekPlan }
   | { type: 'cycleSlotStatus'; date: string; slot: SlotKey }
+  | { type: 'setSlotStatus'; date: string; slot: SlotKey; status: SlotStatus }
   | { type: 'swapSession'; weekStartISO: string; sessionId: SessionId; recipeId: string }
   | { type: 'toggleSessionDone'; weekStartISO: string; sessionId: SessionId }
   | { type: 'toggleGrocery'; weekStartISO: string; key: string }
@@ -45,6 +46,17 @@ export function reducer(state: AppState, action: Action): AppState {
           ...w,
           slots: w.slots.map((s) =>
             s.date === action.date && s.slot === action.slot ? { ...s, status: NEXT_STATUS[s.status] } : s,
+          ),
+        })),
+      }
+    }
+    case 'setSlotStatus': {
+      return {
+        ...state,
+        weeks: state.weeks.map((w) => ({
+          ...w,
+          slots: w.slots.map((s) =>
+            s.date === action.date && s.slot === action.slot ? { ...s, status: action.status } : s,
           ),
         })),
       }

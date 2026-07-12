@@ -1,19 +1,20 @@
 import { useMemo } from 'react'
+import type { ReactNode } from 'react'
 import type { GroceryItem, GroceryList } from '../domain/grocery'
 import { buildGroceryList } from '../domain/grocery'
-import { addDays, fmtDayMonth, fmtShort, todayISO } from '../domain/dates'
+import { fmtShort, todayISO } from '../domain/dates'
 import { useApp } from '../state/store'
 import { groceryPlan } from '../state/selectors'
+import { ScreenHeader } from '../components/ScreenHeader'
 import { Num } from '../components/Num'
-import { IconCheck } from '../components/icons'
+import { IconBox, IconCheck, IconGrocery, IconLeaf, IconSnow } from '../components/icons'
 
-// §6.3: one weekly shop — three sections, persists until the next generation,
-// re-computes on swap keeping checked items checked. Checked items recede.
+// §6.3 as an inset grouped list: the estimate is the hero figure, sections
+// carry a category glyph and a muted subtotal, checked items sink.
 
 const eur = (v: number) => `€${v.toFixed(2)}`
 
 function CheckRow({ item, checked, onToggle }: { item: GroceryItem; checked: boolean; onToggle: () => void }) {
-  // qty like "1280 g" or "7 × 450 g" → tabular number + muted unit
   const qty = item.qty?.match(/^([\d\s×]+)\s(g)$/)
   return (
     <button className="check-row" onClick={onToggle} aria-pressed={checked}>
@@ -25,14 +26,9 @@ function CheckRow({ item, checked, onToggle }: { item: GroceryItem; checked: boo
         {item.sub && <span className="tiny faint"> · {item.sub}</span>}
       </span>
       {item.qty && (
-        <span
-          className="check-qty"
-          style={{ flexShrink: 0, display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 0 }}
-        >
+        <span className="check-qty" style={{ flexShrink: 0, display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
           <span className="small">{qty ? <Num v={qty[1]!.trim()} u={qty[2]} /> : <Num v={item.qty} />}</span>
-          {item.costEur !== undefined && item.costEur > 0 && (
-            <span className="tiny faint">{eur(item.costEur)}</span>
-          )}
+          {item.costEur !== undefined && item.costEur > 0 && <span className="tiny faint">{eur(item.costEur)}</span>}
         </span>
       )}
     </button>
@@ -52,8 +48,13 @@ export function Grocery() {
   if (!plan || !list) {
     return (
       <>
-        <h1 className="screen-title">Grocery</h1>
-        <p className="screen-sub">No plan yet — generate a week on the Week tab and the list appears here.</p>
+        <ScreenHeader title="Grocery" />
+        <div className="empty">
+          <div className="empty-icon">
+            <IconGrocery size={44} />
+          </div>
+          <p>The shopping list appears once a week is planned.</p>
+        </div>
       </>
     )
   }
@@ -62,58 +63,59 @@ export function Grocery() {
   const all = [...list.fresh, ...list.freeze, ...list.pantry]
   const done = all.filter((i) => checked.has(i.key)).length
 
-  const sections: { title: string; sub: string; items: GroceryItem[]; costEur?: number }[] = [
-    { title: 'Fresh', sub: 'use ≤ 2 days — S4 + S1 proteins, veg, fruit, dairy', items: list.fresh, costEur: list.costEur.fresh },
-    { title: 'Freeze on arrival', sub: 'S2 + S3 proteins — defrost prompts appear on Today', items: list.freeze, costEur: list.costEur.freeze },
-    { title: 'Pantry check', sub: 'checklist, no quantities', items: list.pantry },
+  // checked items sink to the bottom of their section (stable within groups)
+  const sunk = (items: GroceryItem[]) => [...items.filter((i) => !checked.has(i.key)), ...items.filter((i) => checked.has(i.key))]
+
+  const sections: { title: string; icon: ReactNode; items: GroceryItem[]; costEur?: number }[] = [
+    { title: 'Fresh', icon: <IconLeaf size={17} />, items: sunk(list.fresh), costEur: list.costEur.fresh },
+    { title: 'Freeze on arrival', icon: <IconSnow size={17} />, items: sunk(list.freeze), costEur: list.costEur.freeze },
+    { title: 'Pantry check', icon: <IconBox size={17} />, items: sunk(list.pantry) },
   ]
 
   return (
     <>
-      <h1 className="screen-title">Grocery</h1>
-      <p className="screen-sub">
-        Shop {fmtShort(plan.weekStartISO)} · cycle {fmtDayMonth(plan.weekStartISO)} → {fmtDayMonth(addDays(plan.weekStartISO, 6))} ·{' '}
-        <Num v={`${done}/${all.length}`} /> ticked
-        <br />
-        <span className="small">
-          Est. <Num v={`~€${Math.round(list.costEur.total)}`} />
-        </span>{' '}
-        <span className="tiny faint">· Dublin avg · fresh &amp; freeze only</span>
-      </p>
+      <ScreenHeader
+        title="Grocery"
+        sub={
+          <>
+            <span className="num num-lg" style={{ fontSize: 22 }}>
+              ~€{Math.round(list.costEur.total)}
+            </span>
+            <span className="tiny faint"> est</span>
+            {'  ·  '}shop {fmtShort(plan.weekStartISO)}
+            {'  ·  '}
+            <Num v={`${done}/${all.length}`} />
+          </>
+        }
+      />
 
-      {sections.map((section) => {
-        const sectionDone = section.items.filter((i) => checked.has(i.key)).length
-        return (
-          <div className="card" key={section.title}>
-            <div className="row-between">
-              <div className="card-title">{section.title}</div>
-              <span className="small dim">
-                {section.costEur !== undefined && section.costEur > 0 && (
-                  <>
-                    <Num v={eur(section.costEur)} />
-                    <span className="faint"> · </span>
-                  </>
-                )}
-                <Num v={`${sectionDone}/${section.items.length}`} />
-              </span>
-            </div>
-            <div className="tiny faint" style={{ marginBottom: 4 }}>
-              {section.sub}
-            </div>
-            {section.items.length === 0 && <p className="dim small">Nothing needed.</p>}
-            {section.items.map((item) => (
-              <CheckRow
-                key={item.key}
-                item={item}
-                checked={checked.has(item.key)}
-                onToggle={() => dispatch({ type: 'toggleGrocery', weekStartISO: plan.weekStartISO, key: item.key })}
-              />
-            ))}
+      {sections.map((section) => (
+        <div className="card" style={{ padding: '10px 14px' }} key={section.title}>
+          <div className="row" style={{ gap: 10, minHeight: 36 }}>
+            <span className="faint" style={{ display: 'inline-flex' }}>
+              {section.icon}
+            </span>
+            <span className="group-label" style={{ flex: 1 }}>
+              {section.title}
+            </span>
+            <span className="tiny faint">
+              {section.costEur !== undefined && section.costEur > 0 && <>{eur(section.costEur)} · </>}
+              {section.items.filter((i) => checked.has(i.key)).length}/{section.items.length}
+            </span>
           </div>
-        )
-      })}
+          {section.items.length === 0 && <p className="dim small">Nothing needed.</p>}
+          {section.items.map((item) => (
+            <CheckRow
+              key={item.key}
+              item={item}
+              checked={checked.has(item.key)}
+              onToggle={() => dispatch({ type: 'toggleGrocery', weekStartISO: plan.weekStartISO, key: item.key })}
+            />
+          ))}
+        </div>
+      ))}
 
-      <p className="tiny faint center">Swapping a session re-computes this list — ticked items stay ticked.</p>
+      <p className="footnote center">Estimate: Dublin average, fresh &amp; freeze only · swaps re-compute, ticks stay</p>
     </>
   )
 }
