@@ -30,7 +30,7 @@ describe('buildGroceryList aggregation', () => {
 
   it('routes S2+S3 proteins to freeze-on-arrival with their own quantities', () => {
     expect(find(list.freeze, 'ing:chicken_breast:freeze')!.grams).toBe(155 * 2)
-    expect(find(list.freeze, 'ing:beef_mince_5:freeze')!.grams).toBe(160 * 4)
+    expect(find(list.freeze, 'ing:beef_mince_5:freeze')!.grams).toBe(110 * 4)
     expect(list.freeze).toHaveLength(2)
   })
 
@@ -47,8 +47,10 @@ describe('buildGroceryList aggregation', () => {
     expect(find(list.fresh, 'ing:banana')!.grams).toBe(1680)
     // apple: A′ 100×4 + D′ 100×3 = 700 g
     expect(find(list.fresh, 'ing:apple')!.grams).toBe(700)
-    // kidney beans (R5 ×4): 320 g → 2 × 240 g cans
-    expect(find(list.fresh, 'ing:kidney_beans_drained')!.qty).toBe('2 × 240 g')
+    // kidney beans (R5 ×4): 160 g → 1 × 240 g can
+    expect(find(list.fresh, 'ing:kidney_beans_drained')!.qty).toBe('1 × 240 g')
+    // lentils (R5 ×4): 480 g → 2 × 400 g pouches
+    expect(find(list.fresh, 'ing:lentils_cooked')!.qty).toBe('2 × 400 g')
     // chopped tomatoes (R5 ×4): 600 g → 2 × 400 g cans
     expect(find(list.fresh, 'ing:chopped_tomatoes')!.qty).toBe('2 × 400 g')
     // onion: R2 40×4 + R5 50×4 = 360 g
@@ -112,8 +114,8 @@ describe('cost estimate (§6.3 — what the till charges, Dublin averages)', () 
 
   it('includes the freeze section in the estimate', () => {
     expect(find(list.freeze, 'ing:chicken_breast:freeze')!.costEur).toBeCloseTo(2.48, 2) // 310 g × €8.00
-    expect(find(list.freeze, 'ing:beef_mince_5:freeze')!.costEur).toBeCloseTo(6.08, 2) // 640 g × €9.50
-    expect(list.costEur.freeze).toBeCloseTo(8.56, 2)
+    expect(find(list.freeze, 'ing:beef_mince_5:freeze')!.costEur).toBeCloseTo(4.18, 2) // 440 g × €9.50
+    expect(list.costEur.freeze).toBeCloseTo(6.66, 2)
   })
 
   it('excludes pantry lines and name-only extras', () => {
@@ -132,7 +134,7 @@ describe('cost estimate (§6.3 — what the till charges, Dublin averages)', () 
     const swapped = swapSession(plan, SEED_RECIPES, INGS, 'S2', 'r8')
     const newList = buildGroceryList(swapped, SEED_RECIPES, SEED_INGREDIENTS)
     expect(find(newList.freeze, 'ing:cod:freeze')!.costEur).toBeCloseTo(3.42, 2) // 380 g × €9.00
-    expect(newList.costEur.freeze).toBeCloseTo(6.08 + 3.42, 2)
+    expect(newList.costEur.freeze).toBeCloseTo(4.18 + 3.42, 2)
     expect(newList.costEur.total).not.toBeCloseTo(list.costEur.total, 2)
   })
 })

@@ -7,7 +7,7 @@
 
 A phone-first, offline-capable PWA that runs Nicolò's fixed food system: a permanent breakfast, a small snack canon, 8 standardised main-meal recipes, a 4-session weekly cook cycle, one weekly grocery shop, tap-to-log adherence, and morning-weight storage. It is a **meal operating system, not a food tracker** — there is no food database, no free-form logging, no calorie search.
 
-**Non-goals for v1:** calorie/macro suggestions (v1.1), cost tracking, supplement/caffeine/Garmin/sleep features, guest portions, protein-bar inventory, notifications/push, accounts, sync, multi-user.
+**Non-goals for v1:** calorie/macro suggestions (v1.1), cost tracking, caffeine/Garmin/sleep features, guest portions, protein-bar inventory, notifications/push, accounts, sync, multi-user. *(Shipped later as small additions: a static grocery cost estimate (§6.3) and a display-only daily supplements checklist (§9.1 / §8, v4) — both logging/display only, no reminders.)*
 
 **Hard rules:**
 - The app NEVER changes calorie or macro targets by itself. v1 makes no suggestions at all; v1.1 may only *propose* changes requiring explicit approval.
@@ -33,7 +33,7 @@ All meal numbers below are **computationally verified** against the ingredient t
 
 ## 3. Permanent breakfast (fixed, daily)
 
-**Weetabix–Skyr bowl — 635 kcal · 33 P · 90 C · 12 F · ~12 g fibre**
+**Weetabix–Skyr bowl — 624 kcal · 33 P · 92 C · 10 F · ~12 g fibre** *(cholesterol revision 2026-07: dark chocolate 10→5 g, +5 g oats)*
 
 | Ingredient | Amount | State |
 |---|---|---|
@@ -42,12 +42,13 @@ All meal numbers below are **computationally verified** against the ingredient t
 | Oat milk, unsweetened | 180 g | as sold |
 | Banana | 120 g | peeled |
 | Chia seeds | 10 g | as sold |
-| Dark chocolate 85% | 10 g | as sold |
+| Oats | 5 g | as sold |
+| Dark chocolate 85% | 5 g | as sold |
 | Honey | 5 g | as sold |
 | Granulated sweetener | to taste (~2 g, calibrate per brand) | — |
 | Cinnamon (optional) | 1 g | — |
 
-Method: crumble Weetabix, add Skyr + oat milk, rest 2 min to soften, top with sliced banana, chia, chopped chocolate, honey, sweetener.
+Method: crumble Weetabix, add Skyr + oat milk, rest 2 min to soften, top with sliced banana, chia, oats, chopped chocolate, honey, sweetener.
 
 **Emergency breakfast (only when an ingredient is missing, never auto-rotated):** 90 g sourdough/wholegrain bread toasted, 3 eggs scrambled, 150 g fruit, 100 g Skyr if available (~640 kcal, ~34 P).
 
@@ -102,14 +103,16 @@ Steps (one pan + kettle): (1) Noodles soak/boil per pack. (2) Stir-fry chicken s
 Scaling: 2 servings = true 20-min one-pan (Tuesday config); 4 servings → cook chicken in two batches.
 Reheat: add reserved sauce + 1 tbsp water, 2:00, stir halfway (prevents clumping).
 
-### R5 · Lean beef chilli with rice — 786 kcal · 49 P · 96 C · 21 F · `keeper` `bigpot`
-Beef mince 5% 160 g · rice 100 g dry · kidney beans 80 g drained · chopped tomatoes 150 g · onion 50 g · olive oil 12 g · chilli powder, cumin, paprika, garlic.
-Steps: (1) Brown onion then mince hard. (2) Spices 1 min, tomatoes + beans, simmer 15–20 min. (3) Rice separately.
+### R5 · Lean beef & lentil chilli with rice — 792 kcal · 46 P · 108 C · 19 F · `keeper` `bigpot`
+*(Cholesterol revision 2026-07: beef 160→110 g, +120 g cooked lentils; rice −10 g and kidney beans 80→40 g to hold the kcal band.)*
+Beef mince 5% 110 g · cooked lentils 120 g · rice 90 g dry · kidney beans 40 g drained · chopped tomatoes 150 g · onion 50 g · olive oil 12 g · chilli powder, cumin, paprika, garlic.
+Steps: (1) Brown onion then mince hard. (2) Spices 1 min, tomatoes + beans + lentils, simmer 15–20 min. (3) Rice separately.
 Scaling: 4 servings = same pot, +5 min simmer. Best keeper in the library — assign late portions to it.
 Reheat: 2:30; improves by day 2.
 
-### R6 · Beef, tomato & spinach orzo — 779 kcal · 49 P · 86 C · 25 F · `keeper` `bigpot`
-Beef mince 5% 150 g · orzo 105 g dry · passata 150 g · spinach 80 g · onion 40 g · olive oil 16 g · garlic, oregano.
+### R6 · Turkey, tomato & spinach orzo — 779 kcal · 49 P · 86 C · 25 F · `keeper` `bigpot`
+*(Cholesterol revision 2026-07: beef → turkey mince 5%, same grams; olive oil 16→12 g holds kcal at exactly the original 779.)*
+Turkey mince 5% 150 g · orzo 105 g dry · passata 150 g · spinach 80 g · onion 40 g · olive oil 12 g · garlic, oregano.
 Steps: (1) Brown onion + mince. (2) Passata + 250 ml water, orzo straight in, simmer 10–12 min stirring. (3) Spinach off heat.
 Scaling: one-pot at all scales; water per water table (not linear).
 Reheat: 2:00 + splash of water — orzo reabsorbs beautifully.
@@ -208,8 +211,12 @@ interface WeightEntry { dateISO: string; kg: number }
 interface Settings { targets: { kcal: number; p: number; fMin: number; fMax: number; cMin: number; cMax: number };
   shopDay: string; planGenDay: string; language: 'en' }
 
+type SupplementDay = { creatine: boolean; omega3: boolean; vitaminD3: boolean } // v4
+
 interface AppState { version: number; ingredients: Ingredient[]; recipes: Recipe[];
-  weeks: WeekPlan[]; weights: WeightEntry[]; settings: Settings }
+  weeks: WeekPlan[]; weights: WeightEntry[];
+  supplementsLog: Record<string, SupplementDay>; // keyed by local YYYY-MM-DD; absent date = all unchecked (v4)
+  settings: Settings }
 ```
 
 Persistence: single `AppState` JSON in localStorage, debounced writes, schema `version` for migrations. **Export/Import:** one-tap download/upload of the full JSON (backup + phone↔laptop move).
@@ -218,7 +225,7 @@ Persistence: single `AppState` JSON in localStorage, debounced writes, schema `v
 
 ## 9. Screens (6)
 
-1. **Today** — the home screen. 5 slot cards (meal name, kcal/P, gram amounts on expand), tap to mark eaten/off-plan; defrost task banner when due; quick weight-add field at top; today's cook session (if any) with "open recipe at N servings" button.
+1. **Today** — the home screen. Daily supplements checklist first (Creatine · Omega-3 · Vitamin D3, per-item checkboxes, fresh each day — display/logging only, no reminders); then 5 slot cards (meal name, kcal/P, gram amounts on expand), tap to mark eaten/off-plan; defrost task banner when due; quick weight-add field at top; today's cook session (if any) with "open recipe at N servings" button.
 2. **Week** — 7×5 grid of slots + the 4 session cards; swap button per session; adherence % for the week.
 3. **Recipes** — library list; detail view with serving selector **1–4** that recalculates every ingredient gram, batch macros, and step overrides live. Cycle-launched views open pre-set to the session's portion count.
 4. **Grocery** — current week's checklist in the three sections; regenerate on swap.
@@ -231,12 +238,12 @@ Design: clean, dense-but-calm, dark-mode default, big tap targets (used in kitch
 
 ## 10. Seeded ingredient nutrition table (per 100 g, EU-label style)
 
-chicken_breast 106/22.0/0/2.0 · beef_mince_5 124/20.5/0/4.5 · salmon 201/20.4/0/13.1 · cod 82/18.0/0/0.7 · rice_dry 351/8.0/77.5/0.6 · pasta_dry 353/12.5/71.0/1.5 · orzo_dry 353/12.5/71.0/1.5 · noodles_dry 348/12.0/67.0/2.0 · couscous_dry 358/12.8/72.5/0.6 · potato 77/2.0/17.0/0.1 · broccoli 34/2.8/4.0/0.4 · courgette 17/1.2/2.2/0.3 · spinach 23/2.9/1.4/0.4 · peppers_mix 30/1.0/5.0/0.3 · green_beans 31/1.8/4.7/0.2 · passata 30/1.3/4.5/0.2 · chopped_tomatoes 25/1.2/3.5/0.2 · onion 38/1.0/8.0/0.1 · kidney_beans_drained 90/7.0/12.0/0.5 · pesto 450/4.5/6.0/45.0 · olive_oil 900/0/0/100 · honey 320/0/80.0/0 · soy_sauce 60/6.0/8.0/0 · skyr 63/10.6/4.0/0.2 · weetabix 362/12.0/69.0/2.0 · oat_milk_unsweetened 42/0.8/6.6/1.3 · banana 89/1.1/20.5/0.3 · apple 52/0.3/12.0/0.2 · chia 486/16.5/8.0/30.7 · dark_chocolate_85 590/9.5/22.0/46.0 · nuts_mixed 620/21.0/9.0/54.0 · oats 372/13.5/60.0/7.0 · whey_protein 375/75.0/8.0/6.0 · tuna_drained 116/26.0/0/1.0 · rice_cakes 387/8.0/81.0/3.0 · cottage_cheese 98/11.0/3.5/4.5 · cherry_tomatoes 18/0.9/2.7/0.2
+chicken_breast 106/22.0/0/2.0 · beef_mince_5 124/20.5/0/4.5 · turkey_mince_5 148/21.0/0/7.0 · salmon 201/20.4/0/13.1 · cod 82/18.0/0/0.7 · rice_dry 351/8.0/77.5/0.6 · pasta_dry 353/12.5/71.0/1.5 · orzo_dry 353/12.5/71.0/1.5 · noodles_dry 348/12.0/67.0/2.0 · couscous_dry 358/12.8/72.5/0.6 · potato 77/2.0/17.0/0.1 · broccoli 34/2.8/4.0/0.4 · courgette 17/1.2/2.2/0.3 · spinach 23/2.9/1.4/0.4 · peppers_mix 30/1.0/5.0/0.3 · green_beans 31/1.8/4.7/0.2 · passata 30/1.3/4.5/0.2 · chopped_tomatoes 25/1.2/3.5/0.2 · onion 38/1.0/8.0/0.1 · kidney_beans_drained 90/7.0/12.0/0.5 · lentils_cooked 116/9.0/20.0/0.4 (pack 400 g) · pesto 450/4.5/6.0/45.0 · olive_oil 900/0/0/100 · honey 320/0/80.0/0 · soy_sauce 60/6.0/8.0/0 · skyr 63/10.6/4.0/0.2 · weetabix 362/12.0/69.0/2.0 · oat_milk_unsweetened 42/0.8/6.6/1.3 · banana 89/1.1/20.5/0.3 · apple 52/0.3/12.0/0.2 · chia 486/16.5/8.0/30.7 · dark_chocolate_85 590/9.5/22.0/46.0 · nuts_mixed 620/21.0/9.0/54.0 · oats 372/13.5/60.0/7.0 · whey_protein 375/75.0/8.0/6.0 · tuna_drained 116/26.0/0/1.0 · rice_cakes 387/8.0/81.0/3.0 · cottage_cheese 98/11.0/3.5/4.5 · cherry_tomatoes 18/0.9/2.7/0.2
 
 Format: kcal/P/C/F. **Owner task (not app logic):** re-verify against local labels once on arrival in Dublin (~20 min); edit values in Settings→(v1.1) or directly in seed data. Canonical substitute: 0%-fat Greek yoghurt for Skyr (57/10.0/4.0/0.3) — one-tap substitution is a v1.1 feature; v1 just documents it here.
 
 **Price column (€/kg, liquids per litre; Dublin average of Tesco/Lidl/Dunnes, deliberately approximate — feeds the §6.3 estimate):**
-chicken_breast 8.00 · beef_mince_5 9.50 · salmon 17.00 · cod 9.00 · rice_dry 2.20 · pasta_dry 1.50 · orzo_dry 1.80 · noodles_dry 3.50 · couscous_dry 2.50 · potato 1.20 · broccoli 2.50 · courgette 2.50 · spinach 5.00 · peppers_mix 3.50 · green_beans 4.50 · passata 1.20 · chopped_tomatoes 1.20 · onion 1.20 · kidney_beans_drained 2.00 · pesto 6.00 · olive_oil 8.00 · honey 7.00 · soy_sauce 6.00 · skyr 4.60 · weetabix 5.00 · oat_milk_unsweetened 1.60 · banana 1.50 · apple 2.50 · chia 10.00 · dark_chocolate_85 12.00 · nuts_mixed 11.00 · oats 1.60 · whey_protein 25.00 · tuna_drained 8.50 · rice_cakes 6.00 · cottage_cheese 4.50 · cherry_tomatoes 4.00
+chicken_breast 8.00 · beef_mince_5 9.50 · turkey_mince_5 8.50 · salmon 17.00 · cod 9.00 · rice_dry 2.20 · pasta_dry 1.50 · orzo_dry 1.80 · noodles_dry 3.50 · couscous_dry 2.50 · potato 1.20 · broccoli 2.50 · courgette 2.50 · spinach 5.00 · peppers_mix 3.50 · green_beans 4.50 · passata 1.20 · chopped_tomatoes 1.20 · onion 1.20 · kidney_beans_drained 2.00 · lentils_cooked 2.50 · pesto 6.00 · olive_oil 8.00 · honey 7.00 · soy_sauce 6.00 · skyr 4.60 · weetabix 5.00 · oat_milk_unsweetened 1.60 · banana 1.50 · apple 2.50 · chia 10.00 · dark_chocolate_85 12.00 · nuts_mixed 11.00 · oats 1.60 · whey_protein 25.00 · tuna_drained 8.50 · rice_cakes 6.00 · cottage_cheese 4.50 · cherry_tomatoes 4.00
 
 ---
 

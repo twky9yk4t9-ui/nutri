@@ -36,6 +36,7 @@ const ING = (
 export const SEED_INGREDIENTS: Ingredient[] = [
   ING('chicken_breast', 'Chicken breast', 106, 22.0, 0, 2.0, 'protein', 8.0, { freezable: true }),
   ING('beef_mince_5', 'Beef mince 5%', 124, 20.5, 0, 4.5, 'protein', 9.5, { freezable: true }),
+  ING('turkey_mince_5', 'Turkey mince 5%', 148, 21.0, 0, 7.0, 'protein', 8.5, { freezable: true }),
   ING('salmon', 'Salmon fillet', 201, 20.4, 0, 13.1, 'protein', 17.0, { freezable: true }),
   ING('cod', 'Cod / white fish', 82, 18.0, 0, 0.7, 'protein', 9.0, { freezable: true }),
   ING('rice_dry', 'Basmati rice (dry)', 351, 8.0, 77.5, 0.6, 'carb', 2.2),
@@ -53,6 +54,7 @@ export const SEED_INGREDIENTS: Ingredient[] = [
   ING('chopped_tomatoes', 'Chopped tomatoes (can)', 25, 1.2, 3.5, 0.2, 'veg', 1.2, { packSizeG: 400 }),
   ING('onion', 'Onion', 38, 1.0, 8.0, 0.1, 'veg', 1.2),
   ING('kidney_beans_drained', 'Kidney beans (drained)', 90, 7.0, 12.0, 0.5, 'veg', 2.0, { packSizeG: 240 }),
+  ING('lentils_cooked', 'Lentils, cooked (pouch/can)', 116, 9.0, 20.0, 0.4, 'veg', 2.5, { packSizeG: 400 }),
   ING('pesto', 'Pesto', 450, 4.5, 6.0, 45.0, 'fat', 6.0),
   ING('olive_oil', 'Olive oil', 900, 0, 0, 100, 'pantry', 8.0),
   ING('honey', 'Honey', 320, 0, 80.0, 0, 'pantry', 7.0),
@@ -107,24 +109,26 @@ const breakfast: Recipe = {
   id: BREAKFAST_ID,
   name: 'Weetabix–Skyr bowl',
   slotType: 'breakfast',
+  // Cholesterol revision (2026-07): chocolate 10→5 g, +5 g oats.
   ingredients: [
     ri('weetabix', 56), // 3 biscuits
     ri('skyr', 200),
     ri('oat_milk_unsweetened', 180),
     ri('banana', 120, 'peeled'),
     ri('chia', 10),
-    ri('dark_chocolate_85', 10),
+    ri('oats', 5),
+    ri('dark_chocolate_85', 5),
     ri('honey', 5),
   ],
   steps: [
     { text: 'Crumble the Weetabix into a bowl. Add Skyr and oat milk, stir, rest 2 min to soften.' },
     {
-      text: 'Top with sliced banana, chia, chopped chocolate and honey. Sweetener to taste (~2 g, calibrate per brand); cinnamon optional.',
+      text: 'Top with sliced banana, chia, oats, chopped chocolate and honey. Sweetener to taste (~2 g, calibrate per brand); cinnamon optional.',
     },
   ],
   tags: [],
   reheatNote: 'Eat fresh — no reheat.',
-  verified: { kcal: 635, p: 33, c: 90, f: 12 },
+  verified: { kcal: 624, p: 33, c: 92, f: 10 },
 }
 
 const snacks: Recipe[] = [
@@ -327,12 +331,17 @@ const mains: Recipe[] = [
   },
   {
     id: 'r5',
-    name: 'Lean beef chilli with rice',
+    name: 'Lean beef & lentil chilli with rice',
     slotType: 'main',
+    // Cholesterol revision (2026-07): beef 160→110 g, +120 g cooked lentils.
+    // Rice −10 g (the sanctioned lever) still left kcal ~+42 over the ±30
+    // band, so kidney beans trimmed 80→40 g (total legumes still ×2 the
+    // original). 792 kcal / 46 P vs the 786 / 49 target.
     ingredients: [
-      ri('beef_mince_5', 160, 'raw'),
-      ri('rice_dry', 100),
-      ri('kidney_beans_drained', 80, 'drained'),
+      ri('beef_mince_5', 110, 'raw'),
+      ri('lentils_cooked', 120, 'cooked'),
+      ri('rice_dry', 90),
+      ri('kidney_beans_drained', 40, 'drained'),
       ri('chopped_tomatoes', 150),
       ri('onion', 50, 'raw'),
       ri('olive_oil', 12),
@@ -340,28 +349,32 @@ const mains: Recipe[] = [
     steps: [
       { text: 'Brown onion in the oil, then the mince, hard.' },
       {
-        text: 'Chilli powder, cumin, paprika, garlic — 1 min. Tomatoes + beans + simmer water (see water table), simmer 15–20 min.',
+        text: 'Chilli powder, cumin, paprika, garlic — 1 min. Tomatoes + beans + lentils + simmer water (see water table), simmer 15–20 min.',
         overridesByServings: {
-          '4': 'Chilli powder, cumin, paprika, garlic — 1 min. Tomatoes + beans + simmer water (see water table), simmer 20–25 min (same pot, +5 min at 4 servings).',
+          '4': 'Chilli powder, cumin, paprika, garlic — 1 min. Tomatoes + beans + lentils + simmer water (see water table), simmer 20–25 min (same pot, +5 min at 4 servings).',
         },
       },
       { text: 'Rice separately (see water table).' },
     ],
     tags: ['keeper', 'bigpot'],
     reheatNote: 'Microwave 2:30; improves by day 2.',
-    verified: { kcal: 786, p: 49, c: 96, f: 21 },
+    verified: { kcal: 792, p: 46, c: 108, f: 19 },
   },
   {
     id: 'r6',
-    name: 'Beef, tomato & spinach orzo',
+    name: 'Turkey, tomato & spinach orzo',
     slotType: 'main',
+    // Cholesterol revision (2026-07): beef → turkey mince, same grams. Turkey
+    // 5% runs 24 kcal/100 g hotter than the beef it replaces, so kcal rose
+    // (not fell) out of the ±30 band — oil trimmed 16→12 g brings it back to
+    // exactly the original 779 kcal / 49 P.
     ingredients: [
-      ri('beef_mince_5', 150, 'raw'),
+      ri('turkey_mince_5', 150, 'raw'),
       ri('orzo_dry', 105),
       ri('passata', 150),
       ri('spinach', 80, 'raw'),
       ri('onion', 40, 'raw'),
-      ri('olive_oil', 16),
+      ri('olive_oil', 12),
     ],
     steps: [
       { text: 'Brown onion + mince in the oil with garlic and oregano.' },
@@ -447,7 +460,9 @@ export const DEFAULT_SETTINGS: Settings = {
 
 // v2: snack canon revision — F/G/H templates + their §10 ingredients added.
 // v3: static Dublin price estimates — priceEurPerKg on every ingredient.
-export const STATE_VERSION = 3
+// v4: cholesterol recipe revision (R5/R6/breakfast + turkey/lentils) refreshed
+//     into stored state, and the daily supplements checklist (supplementsLog).
+export const STATE_VERSION = 4
 
 export function buildSeedState(): AppState {
   return {
@@ -456,6 +471,7 @@ export function buildSeedState(): AppState {
     recipes: SEED_RECIPES,
     weeks: [],
     weights: [],
+    supplementsLog: {},
     settings: DEFAULT_SETTINGS,
     flags: {},
   }

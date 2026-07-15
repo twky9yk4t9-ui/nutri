@@ -10,6 +10,7 @@ import { GenerateSheet } from '../components/GenerateSheet'
 import { ScreenHeader } from '../components/ScreenHeader'
 import { SlotCard, type SlotVariant } from '../components/SlotCard'
 import { SessionCard } from '../components/SessionCard'
+import { SupplementsCard } from '../components/SupplementsCard'
 import { SLOT_GLYPH } from '../components/foodGlyph'
 import { Num } from '../components/Num'
 import { IconBowl, IconPlus, IconScale, IconSnow } from '../components/icons'
@@ -84,8 +85,8 @@ function WeightRow({ date }: { date: string }) {
   }
 
   return (
-    <div className="card" style={{ padding: '2px 14px' }}>
-      <button className="row" style={{ width: '100%', minHeight: 52, textAlign: 'left' }} onClick={() => setOpen((o) => !o)} aria-expanded={open}>
+    <div className="card" style={{ padding: '4px 18px' }}>
+      <button className="row" style={{ width: '100%', minHeight: 56, textAlign: 'left', gap: 12 }} onClick={() => setOpen((o) => !o)} aria-expanded={open}>
         <span className="icon-chip" style={{ '--chip': 'var(--purple)' } as CSSProperties}>
           <IconScale size={18} />
         </span>
@@ -146,6 +147,8 @@ export function Today() {
   return (
     <>
       <ScreenHeader title="Today" sub={fmtShort(today)} />
+
+      <SupplementsCard date={today} />
 
       {slots.length > 0 && (
         <div className="card">

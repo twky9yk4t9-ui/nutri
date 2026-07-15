@@ -259,8 +259,8 @@ describe('swapSession (§6.2 rule 6)', () => {
   })
 
   it('refreshes defrost tasks when S2/S3 recipes change', () => {
-    const swapped = swapSession(plan, SEED_RECIPES, INGS, 'S3', 'r6') // r2 (chicken) → r6 (beef)
+    const swapped = swapSession(plan, SEED_RECIPES, INGS, 'S3', 'r6') // r2 (chicken) → r6 (turkey)
     const tueD = swapped.slots.find((s) => s.date === addDays(SAT, 3) && s.slot === 'D')!
-    expect(tueD.tasks?.[0]).toContain('beef mince')
+    expect(tueD.tasks?.[0]).toContain('turkey mince')
   })
 })

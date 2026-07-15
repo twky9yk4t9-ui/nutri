@@ -205,7 +205,7 @@ export function Settings() {
         </div>
       </div>
 
-      <div className="card" style={{ padding: '2px 14px', marginTop: 12 }}>
+      <div className="card" style={{ padding: '4px 18px', marginTop: 16 }}>
         {rows.map((row) => (
           <button key={row.id} className="disclosure-row" onClick={() => setSheet(row.id)}>
             <span className="icon-chip" style={{ '--chip': row.color } as CSSProperties}>{row.icon}</span>

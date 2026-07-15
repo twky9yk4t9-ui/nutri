@@ -170,6 +170,13 @@ export const IconApple = ({ size }: IconProps) => (
   </svg>
 )
 
+export const IconPill = ({ size }: IconProps) => (
+  <svg {...svgProps(size)}>
+    <rect x="3.2" y="8.6" width="17.6" height="6.8" rx="3.4" transform="rotate(-45 12 12)" />
+    <path d="M9.6 9.6 14.4 14.4" />
+  </svg>
+)
+
 export const IconMoon = ({ size }: IconProps) => (
   <svg {...svgProps(size)}>
     <path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5Z" />

@@ -100,7 +100,7 @@ export function SessionChip({
   const cookDate = addDays(plan.weekStartISO, shape.cookOffset)
 
   return (
-    <div className="card mb0" style={{ width: 190, padding: 12 }}>
+    <div className="card mb0" style={{ width: 200, padding: 14 }}>
       <div className="row-between">
         <FoodChip recipe={recipe} />
         <button

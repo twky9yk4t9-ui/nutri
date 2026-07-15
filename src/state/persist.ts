@@ -37,10 +37,28 @@ function migrateV2toV3(state: AppState): AppState {
   }
 }
 
+/**
+ * v3 → v4: cholesterol recipe revision + supplements checklist. Recipes and
+ * ingredients are not user-editable in v1, so the revised seed versions are
+ * authoritative and replace the stored copies wholesale (ids are stable —
+ * existing plans keep working). supplementsLog starts empty: every day is
+ * unchecked until tapped.
+ */
+function migrateV3toV4(state: AppState): AppState {
+  return {
+    ...state,
+    version: 4,
+    recipes: SEED_RECIPES,
+    ingredients: SEED_INGREDIENTS,
+    supplementsLog: state.supplementsLog ?? {},
+  }
+}
+
 function migrate(raw: unknown): AppState {
   let state = raw as AppState
   if (state.version === 1) state = migrateV1toV2(state)
   if (state.version === 2) state = migrateV2toV3(state)
+  if (state.version === 3) state = migrateV3toV4(state)
   if (state.version !== STATE_VERSION) {
     throw new Error(`Unknown schema version: ${String(state.version)}`)
   }

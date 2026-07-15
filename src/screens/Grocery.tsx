@@ -90,8 +90,8 @@ export function Grocery() {
       />
 
       {sections.map((section) => (
-        <div className="card" style={{ padding: '10px 14px' }} key={section.title}>
-          <div className="row" style={{ gap: 10, minHeight: 40 }}>
+        <div className="card" style={{ padding: '10px 18px 4px' }} key={section.title}>
+          <div className="widget-head">
             <span className="icon-chip sm" style={{ '--chip': section.color } as CSSProperties}>
               {section.icon}
             </span>

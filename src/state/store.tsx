@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useReducer, type ReactNode } from 'react'
-import type { AppState, SessionId, Settings, SlotKey, SlotStatus, WeekPlan, WeightEntry } from '../domain/types'
+import type { AppState, SessionId, Settings, SlotKey, SlotStatus, SupplementKey, WeekPlan, WeightEntry } from '../domain/types'
 import { ingredientMap } from '../domain/macros'
 import { swapSession } from '../domain/rotation'
 import { buildGroceryList, reconcileChecked } from '../domain/grocery'
@@ -13,6 +13,7 @@ export type Action =
   | { type: 'swapSession'; weekStartISO: string; sessionId: SessionId; recipeId: string }
   | { type: 'toggleSessionDone'; weekStartISO: string; sessionId: SessionId }
   | { type: 'toggleGrocery'; weekStartISO: string; key: string }
+  | { type: 'toggleSupplement'; date: string; key: SupplementKey }
   | { type: 'upsertWeight'; entry: WeightEntry }
   | { type: 'deleteWeight'; dateISO: string }
   | { type: 'updateSettings'; settings: Settings }
@@ -81,6 +82,14 @@ export function reducer(state: AppState, action: Action): AppState {
         else checked.add(action.key)
         return { ...plan, groceryChecked: [...checked] }
       })
+    }
+    case 'toggleSupplement': {
+      // A date with no entry is a fresh day: everything unchecked by default.
+      const day = state.supplementsLog[action.date] ?? { creatine: false, omega3: false, vitaminD3: false }
+      return {
+        ...state,
+        supplementsLog: { ...state.supplementsLog, [action.date]: { ...day, [action.key]: !day[action.key] } },
+      }
     }
     case 'upsertWeight':
       return { ...state, weights: upsertWeight(state.weights, action.entry) }

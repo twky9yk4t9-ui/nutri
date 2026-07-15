@@ -10,7 +10,8 @@ import { ScreenHeader } from '../components/ScreenHeader'
 import { SessionChip } from '../components/SessionCard'
 import { SwapSheet } from '../components/SwapSheet'
 import { SLOT_GLYPH } from '../components/foodGlyph'
-import { IconChevronLeft, IconChevronRight, IconWeek } from '../components/icons'
+import { IconChevronLeft, IconChevronRight, IconPot, IconSnow, IconWeek } from '../components/icons'
+import type { CSSProperties } from 'react'
 
 const SESSION_ORDER: SessionId[] = ['S4', 'S1', 'S2', 'S3']
 
@@ -102,7 +103,7 @@ export function Week() {
         </div>
       ) : (
         <>
-          <div className="card" style={{ padding: 10 }}>
+          <div className="card" style={{ padding: 14 }}>
             <div
               style={{
                 display: 'grid',
@@ -131,8 +132,11 @@ export function Week() {
             </div>
           </div>
 
-          <div className="group-label" style={{ margin: '14px 4px 8px' }}>
-            Cook sessions
+          <div className="widget-head" style={{ margin: '6px 2px 4px' }}>
+            <span className="icon-chip sm" style={{ '--chip': 'var(--orange)' } as CSSProperties}>
+              <IconPot size={15} />
+            </span>
+            <span className="group-label">Cook sessions</span>
           </div>
           <div className="hscroll">
             {SESSION_ORDER.map((id) => {
@@ -145,7 +149,10 @@ export function Week() {
 
           {showFreezerTip && (
             <div className="banner">
-              <span style={{ flex: 1 }}>When a session is easy, cook +1 portion and freeze it, until you hold 2–3 emergency meals.</span>
+              <span className="banner-icon">
+                <IconSnow size={17} />
+              </span>
+              <span style={{ flex: 1 }}>Cook +1 portion when easy — build a 2–3 meal freezer buffer.</span>
               <button
                 className="btn btn-ghost small"
                 style={{ minHeight: 36, padding: '2px 8px' }}

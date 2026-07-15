@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import type { CSSProperties } from 'react'
 import { todayISO, fmtShort } from '../domain/dates'
 import { lastNWeeks } from '../domain/adherence'
 import { rolling7 } from '../domain/weights'
@@ -6,6 +7,7 @@ import { useApp } from '../state/store'
 import { ScreenHeader } from '../components/ScreenHeader'
 import { WeightChart } from '../components/WeightChart'
 import { Num } from '../components/Num'
+import { IconCheck, IconClock, IconScale } from '../components/icons'
 
 // §9.5 Trends — the chart gets the space; numbers annotate it. Display only
 // (§7): no interpretation, no suggestions, no trend-colored arrows.
@@ -77,9 +79,14 @@ export function Trends() {
     <>
       <ScreenHeader title="Trends" />
 
-      <div className="card" style={{ padding: '12px 8px 8px' }}>
+      <div className="card" style={{ padding: '14px 10px 10px' }}>
         <div style={{ padding: '0 8px 10px' }}>
-          <div className="group-label">Weight</div>
+          <div className="widget-head" style={{ minHeight: 30 }}>
+            <span className="icon-chip sm" style={{ '--chip': 'var(--purple)' } as CSSProperties}>
+              <IconScale size={15} />
+            </span>
+            <span className="group-label">Weight</span>
+          </div>
           {latest && (
             <div className="row" style={{ alignItems: 'baseline', gap: 10, marginTop: 2 }}>
               <span>
@@ -102,7 +109,12 @@ export function Trends() {
       <div className="card">
         <div className="row-between" style={{ marginBottom: 8, alignItems: 'flex-start' }}>
           <div>
-            <div className="group-label">Adherence</div>
+            <div className="widget-head" style={{ minHeight: 30 }}>
+              <span className="icon-chip sm" style={{ '--chip': 'var(--green)' } as CSSProperties}>
+                <IconCheck size={15} />
+              </span>
+              <span className="group-label">Adherence</span>
+            </div>
             {bars[bars.length - 1]?.adherence.pct !== null && bars.length > 0 && (
               <div style={{ marginTop: 2 }}>
                 <span style={{ fontSize: 30, fontWeight: 800, letterSpacing: '-0.02em', color: 'var(--green)' }}>
@@ -147,9 +159,14 @@ export function Trends() {
         </div>
       </div>
 
-      <div className="card">
-        <div className="card-title">Entries</div>
-        <ul className="list-plain" style={{ marginTop: 4 }}>
+      <div className="card" style={{ padding: '10px 18px 8px' }}>
+        <div className="widget-head">
+          <span className="icon-chip sm" style={{ '--chip': 'var(--cyan)' } as CSSProperties}>
+            <IconClock size={15} />
+          </span>
+          <span className="group-label">Entries</span>
+        </div>
+        <ul className="list-plain" style={{ marginTop: 2 }}>
           {recent.length === 0 && <li className="dim small">Nothing logged yet.</li>}
           {recent.map((w) => (
             <WeightRow key={w.dateISO} dateISO={w.dateISO} kg={w.kg} />

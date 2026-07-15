@@ -6,7 +6,8 @@ import { useNav } from '../App'
 import { ScreenHeader } from '../components/ScreenHeader'
 import { FoodChip } from '../components/foodGlyph'
 import { Num } from '../components/Num'
-import { IconBolt, IconClock, IconInfo, IconPot } from '../components/icons'
+import { IconApple, IconBolt, IconBowl, IconClock, IconInfo, IconPot } from '../components/icons'
+import type { CSSProperties } from 'react'
 
 // Glanceable library: leading food glyph, one-line name, right-aligned
 // figures. Tags are tiny muted glyphs; their legend lives behind ⓘ.
@@ -53,10 +54,10 @@ export function Recipes() {
   const snacks = state.recipes.filter((r) => r.slotType === 'snack')
   const breakfast = state.recipes.filter((r) => r.slotType === 'breakfast')
 
-  const groups: { title: string; items: Recipe[] }[] = [
-    { title: 'Main meals', items: mains },
-    { title: 'Snacks', items: snacks },
-    { title: 'Breakfast', items: breakfast },
+  const groups: { title: string; color: string; icon: ReactNode; items: Recipe[] }[] = [
+    { title: 'Main meals', color: 'var(--orange)', icon: <IconPot size={15} />, items: mains },
+    { title: 'Snacks', color: 'var(--mint)', icon: <IconApple size={15} />, items: snacks },
+    { title: 'Breakfast', color: 'var(--yellow)', icon: <IconBowl size={15} />, items: breakfast },
   ]
 
   return (
@@ -64,13 +65,18 @@ export function Recipes() {
       <ScreenHeader title="Recipes" />
 
       {groups.map((g, gi) => (
-        <div key={g.title}>
-          <div className="row" style={{ margin: '10px 4px 6px', gap: 4 }}>
-            <span className="group-label">{g.title}</span>
+        <div className="card" style={{ padding: '10px 18px 4px' }} key={g.title}>
+          <div className="widget-head">
+            <span className="icon-chip sm" style={{ '--chip': g.color } as CSSProperties}>
+              {g.icon}
+            </span>
+            <span className="group-label" style={{ flex: 1 }}>
+              {g.title}
+            </span>
             {gi === 0 && (
               <button
                 className="icon-btn"
-                style={{ width: 40, height: 40, margin: '-10px 0' }}
+                style={{ width: 40, height: 40, margin: 0 }}
                 onClick={() => setShowLegend((v) => !v)}
                 aria-expanded={showLegend}
                 aria-label="Tag legend"
@@ -80,20 +86,18 @@ export function Recipes() {
             )}
           </div>
           {gi === 0 && showLegend && (
-            <p className="footnote" style={{ margin: '0 4px 8px' }}>
+            <p className="footnote" style={{ margin: '0 0 8px' }}>
               <span style={{ color: TAG_COLOR.quick }}><IconBolt size={11} /></span> quick — 20-min one-pan, Tuesday-friendly ·{' '}
               <span style={{ color: TAG_COLOR.keeper }}><IconClock size={11} /></span> keeper — holds 2+ days ·{' '}
               <span style={{ color: TAG_COLOR.bigpot }}><IconPot size={11} /></span> big pot — scales easily to 4 ·{' '}
-              chip color = protein: <span style={{ color: 'var(--orange)' }}>chicken</span> <span style={{ color: 'var(--red)' }}>beef</span>{' '}
+              chip color = protein: <span style={{ color: 'var(--orange)' }}>poultry</span> <span style={{ color: 'var(--red)' }}>beef</span>{' '}
               <span style={{ color: 'var(--blue)' }}>fish</span> <span style={{ color: 'var(--purple)' }}>whey</span>{' '}
               <span style={{ color: 'var(--mint)' }}>fresh</span>
             </p>
           )}
-          <div className="card" style={{ padding: '2px 14px' }}>
-            {g.items.map((r) => (
-              <RecipeRow key={r.id} recipe={r} />
-            ))}
-          </div>
+          {g.items.map((r) => (
+            <RecipeRow key={r.id} recipe={r} />
+          ))}
         </div>
       ))}
     </>

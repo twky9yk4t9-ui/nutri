@@ -1,7 +1,8 @@
-// Data model per spec §8, with three documented additions:
+// Data model per spec §8, with four documented additions:
 //  - SlotRef: referenced by the spec but never defined there
 //  - WeekPlan.groceryChecked: grocery checkbox persistence required by §6.3
 //  - AppState.flags: freezer-buffer tip dismissal required by §6.4
+//  - AppState.supplementsLog: daily supplements checklist (v4, display/logging only)
 
 export interface Macros {
   kcal: number
@@ -94,6 +95,11 @@ export interface WeightEntry {
   kg: number
 }
 
+export type SupplementKey = 'creatine' | 'omega3' | 'vitaminD3'
+
+/** One day's supplement checklist — absent date ⇒ all unchecked (fresh daily). */
+export type SupplementDay = Record<SupplementKey, boolean>
+
 export interface Settings {
   targets: { kcal: number; p: number; fMin: number; fMax: number; cMin: number; cMax: number }
   shopDay: string
@@ -107,6 +113,8 @@ export interface AppState {
   recipes: Recipe[]
   weeks: WeekPlan[]
   weights: WeightEntry[]
+  /** Daily supplement checklist keyed by local YYYY-MM-DD (v4 addition). */
+  supplementsLog: Record<string, SupplementDay>
   settings: Settings
   flags?: { freezerTipDismissed?: boolean }
 }

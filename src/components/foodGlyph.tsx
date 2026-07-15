@@ -7,6 +7,7 @@ import { IconApple, IconBird, IconBowl, IconCow, IconFish, IconFlask, IconMoon, 
 
 const BY_INGREDIENT: [string, string, (size: number) => ReactNode][] = [
   ['chicken_breast', 'var(--orange)', (s) => <IconBird size={s} />],
+  ['turkey_mince_5', 'var(--orange)', (s) => <IconBird size={s} />],
   ['beef_mince_5', 'var(--red)', (s) => <IconCow size={s} />],
   ['salmon', 'var(--blue)', (s) => <IconFish size={s} />],
   ['cod', 'var(--blue)', (s) => <IconFish size={s} />],
