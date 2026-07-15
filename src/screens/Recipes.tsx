@@ -38,9 +38,9 @@ function RecipeRow({ recipe }: { recipe: Recipe }) {
         ))}
       </span>
       <span className="small" style={{ flexShrink: 0 }}>
-        <Num v={recipe.verified.kcal} u="kcal" />{' '}
+        <Num v={recipe.verified.kcal} u="kcal" c="var(--orange)" />{' '}
         <span style={{ display: 'inline-block', minWidth: 42, textAlign: 'right' }}>
-          <Num v={recipe.verified.p} u="P" />
+          <Num v={recipe.verified.p} u="P" c="var(--cyan)" />
         </span>
       </span>
     </button>

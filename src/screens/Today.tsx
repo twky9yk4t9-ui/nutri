@@ -13,7 +13,7 @@ import { SessionCard } from '../components/SessionCard'
 import { SupplementsCard } from '../components/SupplementsCard'
 import { SLOT_GLYPH } from '../components/foodGlyph'
 import { Num } from '../components/Num'
-import { IconBowl, IconPlus, IconScale, IconSnow } from '../components/icons'
+import { IconBowl, IconPlus, IconPot, IconScale, IconSnow } from '../components/icons'
 
 /** One circle per slot (widget week-row style): ✓ eaten, – off-plan,
  *  ring = up next. The slot glyph beneath names it without words. */
@@ -148,7 +148,28 @@ export function Today() {
     <>
       <ScreenHeader title="Today" sub={fmtShort(today)} />
 
-      <SupplementsCard date={today} />
+      {/* kitchen work first — tasks, not eating; they wear the task hue */}
+      {(tasks.length > 0 || cookSession) && (
+        <>
+          <div className="widget-head" style={{ margin: '0 2px 4px' }}>
+            <span className="icon-chip sm" style={{ '--chip': 'var(--pink)' } as CSSProperties}>
+              <IconPot size={15} />
+            </span>
+            <span className="group-label">Today's tasks</span>
+          </div>
+          {tasks.map((task) => (
+            <div className="banner task" key={task}>
+              <span className="banner-icon">
+                <IconSnow size={18} />
+              </span>
+              <span>{task}</span>
+            </div>
+          ))}
+          {cookSession && (
+            <SessionCard plan={plan!} session={cookSession} recipe={recipes.get(cookSession.recipeId)} highlight={!cookSession.done} />
+          )}
+        </>
+      )}
 
       {slots.length > 0 && (
         <div className="card">
@@ -158,20 +179,9 @@ export function Today() {
         </div>
       )}
 
+      <SupplementsCard date={today} />
+
       <WeightRow date={today} />
-
-      {tasks.map((task) => (
-        <div className="banner" key={task}>
-          <span className="banner-icon" style={{ color: 'var(--blue)' }}>
-            <IconSnow size={18} />
-          </span>
-          <span>{task}</span>
-        </div>
-      ))}
-
-      {cookSession && (
-        <SessionCard plan={plan!} session={cookSession} recipe={recipes.get(cookSession.recipeId)} highlight={!cookSession.done} />
-      )}
 
       {slots.length === 0 ? (
         <div className="empty">

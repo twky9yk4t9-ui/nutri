@@ -25,7 +25,7 @@ export function TabBar({ active, onSelect }: { active: Tab; onSelect: (tab: Tab)
             onClick={() => onSelect(t.id)}
             aria-current={active === t.id ? 'page' : undefined}
           >
-            {t.icon()}
+            <span className="tab-ico">{t.icon()}</span>
             <span>{t.label}</span>
           </button>
         ))}

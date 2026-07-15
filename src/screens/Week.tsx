@@ -133,7 +133,7 @@ export function Week() {
           </div>
 
           <div className="widget-head" style={{ margin: '6px 2px 4px' }}>
-            <span className="icon-chip sm" style={{ '--chip': 'var(--orange)' } as CSSProperties}>
+            <span className="icon-chip sm" style={{ '--chip': 'var(--pink)' } as CSSProperties}>
               <IconPot size={15} />
             </span>
             <span className="group-label">Cook sessions</span>

@@ -28,19 +28,24 @@ export function SessionCard({
   const cookDate = addDays(plan.weekStartISO, shape.cookOffset)
   const coverDates = [...new Set(session.covers.map((c) => c.date))]
 
+  // A due cook session is a TASK, not a meal — it wears the task hue (pink),
+  // never a food or attention-for-eating hue.
   return (
     <div
       className="card"
       style={
         highlight
-          ? { background: 'color-mix(in srgb, var(--warm) 8%, var(--surface))', borderColor: 'color-mix(in srgb, var(--warm) 35%, var(--line))' }
+          ? {
+              background: 'color-mix(in srgb, var(--pink) 9%, var(--surface))',
+              borderColor: 'color-mix(in srgb, var(--pink) 36%, var(--line))',
+            }
           : undefined
       }
     >
       <div className="row" style={{ gap: 12 }}>
         <FoodChip recipe={recipe} />
         <div style={{ flex: 1, minWidth: 0 }}>
-          <div className="kicker" style={highlight ? { color: 'var(--warm)' } : undefined}>
+          <div className="kicker" style={highlight ? { color: 'var(--pink)' } : undefined}>
             {session.id} · cook {fmtShort(cookDate)}{highlight && ' · due'}
           </div>
           <div style={{ fontWeight: 700, margin: '1px 0', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>

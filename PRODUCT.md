@@ -14,7 +14,7 @@ NUTRI runs a fixed personal food system (permanent breakfast, snack canon, 8 sta
 
 ## Brand Personality
 
-Calm · glanceable · self-explanatory. Apple Health / Fitness product language: the app should read like a first-party iOS utility — instantly legible in 3 seconds without body text, one consistent SF-style glyph set, numbers as the heroes (tabular, with muted units). The surface system is **frosted widgets on a calm dark ground**: large continuous-feel radii (~22 px), translucent blurred card fills with hairline borders and soft shadows, generous breathing space (screens may scroll; viewports stay airy), and every widget doing exactly one job behind an icon-led header. Zero persuasion, zero gamification, zero coaching voice.
+Calm · glanceable · self-explanatory. Apple Health / Fitness product language: the app should read like a first-party iOS utility — instantly legible in 3 seconds without body text, one consistent SF-style glyph set, numbers as the heroes (tabular, with muted units). The surface system is **liquid-glass widgets on a calm dark ground**: large continuous-feel radii (~22 px), translucent saturated-blur fills with specular gradient hairlines (light falls top-left) and inner top highlights, a tinted identity-color capsule on the active tab, generous breathing space (screens may scroll; viewports stay airy), and every widget doing exactly one job behind an icon-led header. Zero persuasion, zero gamification, zero coaching voice.
 
 ## Anti-references
 
@@ -25,9 +25,9 @@ Calm · glanceable · self-explanatory. Apple Health / Fitness product language:
 ## Design Principles
 
 1. **Three-second comprehension.** Every screen passes the test: a first-time user knows what it's for and what to tap without reading body text. Content leads; documentation retires to footnotes or ⓘ.
-2. **The next action dominates.** Today leads with the daily supplements checklist and a wordless day-dot track + eaten-vs-target bars, then the next meal / due cook work as the hero; everything completed collapses to quiet lines.
+2. **The next action dominates, tasks before eating.** Today opens with kitchen tasks (due cook session, defrost — pink), then the day summary (wordless day-dot track + eaten-vs-target bars), then the supplements toggles beneath it, then the next meal as the hero; everything completed collapses to quiet lines.
 3. **Progressive disclosure.** Nothing is an always-open form — compact summary rows expand or open focused sheets (weight, settings groups).
-4. **Color = identity, glyphs always accompany it.** A fixed multi-hue vocabulary (habit-app / Apple Fitness style): green=done, orange=attention/energy, cyan=protein/shop, blue=freeze/fish, red=beef, yellow=breakfast/grains, mint=fresh food, purple=body data, indigo=evening. Color appears as vivid fills on small elements (dots, chips, bars, rings, figures) — large surfaces stay neutral dark, and a glyph always carries the same meaning for color-blind reading.
+4. **Color = identity, glyphs always accompany it.** A fixed multi-hue vocabulary (habit-app / Apple Fitness style): green=done, orange=attention/energy, cyan=protein/shop, blue=freeze/fish, red=beef, yellow=breakfast/grains, mint=fresh food, purple=body data, indigo=evening, pink=kitchen tasks (cook sessions, defrost — work, never eating). Color appears as vivid fills on small elements (dots, chips, bars, rings, figures) — large surfaces stay neutral dark, and a glyph always carries the same meaning for color-blind reading.
 5. **Numbers are the product.** Tabular numerals everywhere; large figures, muted unit labels; columns never jitter.
 6. **No interpretation.** Display-only data surfaces (§1 hard rule); the UI never editorialises the numbers.
 

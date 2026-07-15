@@ -98,7 +98,7 @@ export function Grocery() {
             <span className="group-label" style={{ flex: 1 }}>
               {section.title}
             </span>
-            <span className="tiny faint">
+            <span className="tiny" style={{ color: section.color, opacity: 0.8, fontWeight: 600 }}>
               {section.costEur !== undefined && section.costEur > 0 && <>{eur(section.costEur)} · </>}
               {section.items.filter((i) => checked.has(i.key)).length}/{section.items.length}
             </span>
